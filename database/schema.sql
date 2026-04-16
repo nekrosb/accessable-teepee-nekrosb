@@ -32,4 +32,3 @@ create table if not exists entry_tags (
     foreign key (tag_id) references tags(id) on delete cascade
 );
 
-create index tags_entries_idx on entry_tags (entry_id, tag_id);
