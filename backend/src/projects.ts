@@ -9,7 +9,7 @@ export async function getProjects(db: DB) {
 }
 
 const newProjectSchema = v.object({
-    title: v.string(),
+    title: v.pipe(v.string(), v.trim(), v.minLength(1)),
     description: v.string(),
 });
 
@@ -38,7 +38,7 @@ export async function createProject(ctx: Context, db: DB) {
 }
 
 const updateProjectSchema = v.object({
-    title: v.optional(v.string()),
+    title: v.optional(v.pipe(v.string(), v.trim(), v.minLength(1))),
     description: v.optional(v.string()),
 });
 
