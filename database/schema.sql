@@ -9,13 +9,13 @@ create table if not exists tags (
 create table if not exists projects (
     id int generated always as identity primary key,
     title TEXT NOT NULL,
-    description TEXT,
+    description TEXT DEFAULT '',
     check (trim(title) <> '')
 );
 
 create table if not exists entries (
     id int generated always as identity primary key,
-    description TEXT,
+    description TEXT DEFAULT '',
     start_time TIMESTAMPTZ DEFAULT now(),
     finish_time TIMESTAMPTZ,
     project_id int,
