@@ -1,6 +1,11 @@
 import { Elysia } from "elysia";
 import postgres from "postgres";
-import { createProject, getProjects, updateProject } from "./projects";
+import {
+  createProject,
+  deleteProject,
+  getProjects,
+  updateProject,
+} from "./projects";
 
 const sql = postgres(
   process.env.DATABASE_URL ||
@@ -15,6 +20,9 @@ const app = new Elysia().decorate("db", sql)
   })
   .patch("/projects/:id", async (ctx) => {
     return await updateProject(ctx, ctx.db);
+  })
+  .delete("/projects/:id", async (ctx) => {
+    return await deleteProject(ctx, ctx.db);
   })
   .listen(3000);
 
