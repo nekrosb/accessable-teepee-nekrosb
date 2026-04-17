@@ -19,18 +19,22 @@ export async function createProject(ctx: Context, db: DB) {
     const checkType = v.safeParse(newProjectSchema, body);
 
     if (!checkType.success) {
-        return ctx.status(400, {
+        ctx.set.status = 400;
+        return {
             error: "Invalid request body",
-        });
+        };
     }
 
     const { title, description } = checkType.output;
 
-    return await db`
+    const result = await db`
         insert into projects (title, description)
         values (${title}, ${description})
         returning *
     `;
+
+    ctx.set.status = 201;
+    return result[0];
 }
 
 const updateProjectSchema = v.object({
@@ -39,27 +43,24 @@ const updateProjectSchema = v.object({
 });
 
 export async function updateProject(ctx: Context, db: DB) {
-    const { id } = ctx.params;
+    const id = parseInt(ctx.params.id as string, 10);
+
+    if (isNaN(id)) {
+        ctx.set.status = 400;
+        return { error: "Invalid project ID" };
+    }
+
     const body = ctx.body;
     const checkType = v.safeParse(updateProjectSchema, body);
 
     if (!checkType.success) {
-        return ctx.status(400, {
+        ctx.set.status = 400;
+        return {
             error: "Invalid request body",
-        });
+        };
     }
 
     const { title, description } = checkType.output;
-
-    const existingProject = await db`
-        select * from projects where id = ${id}
-    `;
-
-    if (existingProject.length === 0) {
-        return ctx.status(404, {
-            error: "Project not found",
-        });
-    }
 
     const safeTitle = title ?? null;
     const safeDescription = description ?? null;
@@ -71,5 +72,13 @@ export async function updateProject(ctx: Context, db: DB) {
         where id = ${id}
         returning *
     `;
+
+    if (updatedProject.length === 0) {
+        ctx.set.status = 404;
+        return {
+            error: "Project not found",
+        };
+    }
+
     return updatedProject[0];
 }

@@ -3,7 +3,8 @@ import postgres from "postgres";
 import { createProject, getProjects, updateProject } from "./projects";
 
 const sql = postgres(
-  "postgres://postgres:password@localhost:5432/app_database",
+  process.env.DATABASE_URL ||
+    "postgres://postgres:password@localhost:5432/app_database",
 );
 const app = new Elysia().decorate("db", sql)
   .get("/projects", async (ctx) => {
