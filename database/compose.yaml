@@ -1,7 +1,18 @@
 services:
+  init-perms:
+    image: alpine
+    container_name: postgres_init_perms
+    volumes:
+      - .:/app
+    command: /bin/sh -c "mkdir -p /app/postgres_data && chown -R 1000:1000 /app/postgres_data && chmod 700 /app/postgres_data"
+
   postgres:
-    image: postgres:latest
+    image: postgres:16-alpine
     container_name: postgres_db
+    user: "${UID:-1000}:${GID:-1000}"
+    depends_on:
+      init-perms:
+        condition: service_completed_successfully
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -10,6 +21,7 @@ services:
       - "5432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d app_database"]
       interval: 10s
