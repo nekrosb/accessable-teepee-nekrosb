@@ -40,7 +40,7 @@ const app = new Elysia().decorate("db", sql)
     return await deleteTag(ctx, ctx.db);
   })
   .get("/entries", async (ctx) => {
-    return await getEntries(ctx.db);
+    return await getEntries(ctx, ctx.db);
   })
   .post("/entries", async (ctx) => {
     return await createEntries(ctx, ctx.db);
