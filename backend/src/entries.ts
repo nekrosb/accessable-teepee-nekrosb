@@ -5,13 +5,23 @@ import * as v from "valibot";
 type DB = ReturnType<typeof postgres>;
 
 export async function getEntries(ctx: Context, db: DB) {
+    if (!Number.isInteger(ctx.query.page) || Number(ctx.query.page) < 1) {
+        ctx.set.status = 400;
+        return { error: "Invalid page number" };
+    }
+    const page = parseInt(ctx.query.page as string, 10) || 1;
+    const limit = 10;
+    const offset = (page - 1) * limit;
+
     try {
         return await db`select e.*,
         COALESCE(json_agg(t.*) FILTER (WHERE t.id IS NOT NULL), '[]') as tags
         from entries e
         left join entry_tags et on e.id = et.entry_id
         left join tags t on et.tag_id = t.id
-        group by e.id`;
+        group by e.id
+        order by e.id desc
+        limit ${limit} offset ${offset}`;
     } catch (error) {
         ctx.set.status = 500;
         return { error: "Internal server error: failed to fetch entries" };
