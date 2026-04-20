@@ -6,11 +6,13 @@ import {
   getProjects,
   updateProject,
 } from "./projects";
+import { createTag, deleteTag, getTags, updateTag } from "./tags";
 
 const sql = postgres(
   process.env.DATABASE_URL ||
     "postgres://postgres:password@localhost:5432/app_database",
 );
+
 const app = new Elysia().decorate("db", sql)
   .get("/projects", async (ctx) => {
     return await getProjects(ctx.db);
@@ -23,6 +25,18 @@ const app = new Elysia().decorate("db", sql)
   })
   .delete("/projects/:id", async (ctx) => {
     return await deleteProject(ctx, ctx.db);
+  })
+  .get("/tags", (ctx) => {
+    return getTags(ctx.db);
+  })
+  .post("/tags", async (ctx) => {
+    return await createTag(ctx, ctx.db);
+  })
+  .patch("/tags/:id", async (ctx) => {
+    return await updateTag(ctx, ctx.db);
+  })
+  .delete("/tags/:id", async (ctx) => {
+    return await deleteTag(ctx, ctx.db);
   })
   .listen(3000);
 
