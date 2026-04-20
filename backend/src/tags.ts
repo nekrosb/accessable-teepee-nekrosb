@@ -28,7 +28,7 @@ export async function createTag(ctx: Context, db: DB) {
     const { title, description } = checkType.output;
 
     const result = await db`
-        insert into Tags (title, description)
+        insert into tags (title, description)
         values (${title}, ${description})
         returning *
     `;
@@ -47,7 +47,7 @@ export async function updateTag(ctx: Context, db: DB) {
 
     if (isNaN(id)) {
         ctx.set.status = 400;
-        return { error: "Invalid project ID" };
+        return { error: "Invalid tag ID" };
     }
 
     const body = ctx.body;
@@ -76,7 +76,7 @@ export async function updateTag(ctx: Context, db: DB) {
     if (updatedTags.length === 0) {
         ctx.set.status = 404;
         return {
-            error: "Project not found",
+            error: "tag not found",
         };
     }
 
@@ -88,7 +88,7 @@ export async function deleteTag(ctx: Context, db: DB) {
 
     if (isNaN(id)) {
         ctx.set.status = 400;
-        return { error: "Invalid project ID" };
+        return { error: "Invalid tag ID" };
     }
 
     const deletedTags = await db`
@@ -100,7 +100,7 @@ export async function deleteTag(ctx: Context, db: DB) {
     if (deletedTags.length === 0) {
         ctx.set.status = 404;
         return {
-            error: "Project not found",
+            error: "tag not found",
         };
     }
 
