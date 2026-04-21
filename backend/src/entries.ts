@@ -28,17 +28,23 @@ export async function getEntries(ctx: Context, db: DB) {
     }
 }
 
-export async function checkClockIn(ctx: Context, db: DB) {
-    try {
-        const activeEntry = await db`
+async function hasActiveEntry(db: DB) {
+    const activeEntry = await db`
         select exists (
             select 1
             from entries
             where finish_time is null
         ) as "isClockedIn"
         `;
+
+    return activeEntry[0];
+}
+
+export async function checkClockInStatus(ctx: Context, db: DB) {
+    try {
+        const activeEntry = await hasActiveEntry(db);
         ctx.set.status = 200;
-        return activeEntry[0];
+        return activeEntry;
     } catch (error) {
         ctx.set.status = 500;
         return {
@@ -55,8 +61,8 @@ const newEntriesSchema = v.object({
     tagIds: v.optional(v.array(v.number("Tag ID must be a number"))),
 });
 
-export async function createEntries(ctx: Context, db: DB) {
-    const activeEntries = await checkClockIn(ctx, db);
+export async function createEntry(ctx: Context, db: DB) {
+    const activeEntries = await hasActiveEntry(db);
     if (activeEntries.isClockedIn) {
         ctx.set.status = 400;
         return { error: "Cannot create a new entry while clocked in" };
@@ -210,11 +216,6 @@ export async function deleteEntry(ctx: Context, db: DB) {
 
 export async function clockOut(ctx: Context, db: DB) {
     try {
-        const activeEntry = await checkClockIn(ctx, db);
-        if (!activeEntry.isClockedIn) {
-            ctx.set.status = 400;
-            return { error: "No active entry to clock out from" };
-        }
         const updatedEntries = await db`
             update entries
             set finish_time = now()

@@ -8,9 +8,9 @@ import {
 } from "./projects";
 import { createTag, deleteTag, getTags, updateTag } from "./tags";
 import {
-  checkClockIn,
+  checkClockInStatus,
   clockOut,
-  createEntries,
+  createEntry,
   deleteEntry,
   getEntries,
   updateEntry,
@@ -50,7 +50,7 @@ const app = new Elysia().decorate("db", sql)
     return await getEntries(ctx, ctx.db);
   })
   .post("/entries", async (ctx) => {
-    return await createEntries(ctx, ctx.db);
+    return await createEntry(ctx, ctx.db);
   })
   .patch("/entries/:id", async (ctx) => {
     return await updateEntry(ctx, ctx.db);
@@ -58,8 +58,8 @@ const app = new Elysia().decorate("db", sql)
   .delete("/entries/:id", async (ctx) => {
     return await deleteEntry(ctx, ctx.db);
   })
-  .get("/check-in", async (ctx) => {
-    return await checkClockIn(ctx, ctx.db);
+  .patch("/check-in", async (ctx) => {
+    return await checkClockInStatus(ctx, ctx.db);
   })
   .get("/clock-out", async (ctx) => {
     return await clockOut(ctx, ctx.db);
