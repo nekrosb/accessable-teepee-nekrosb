@@ -29,7 +29,7 @@ export async function getEntries(ctx: Context, db: DB) {
 }
 
 async function hasActiveEntry(db: DB) {
-    const activeEntry = await db`
+    const [activeEntry] = await db`
         select exists (
             select 1
             from entries
@@ -37,7 +37,7 @@ async function hasActiveEntry(db: DB) {
         ) as "isClockedIn"
         `;
 
-    return activeEntry[0];
+    return activeEntry;
 }
 
 export async function checkClockInStatus(ctx: Context, db: DB) {
@@ -62,25 +62,26 @@ const newEntriesSchema = v.object({
 });
 
 export async function createEntry(ctx: Context, db: DB) {
-    const activeEntries = await hasActiveEntry(db);
-    if (activeEntries.isClockedIn) {
-        ctx.set.status = 400;
-        return { error: "Cannot create a new entry while clocked in" };
-    }
-    const body = ctx.body;
-    const checkType = v.safeParse(newEntriesSchema, body);
-
-    if (!checkType.success) {
-        ctx.set.status = 400;
-        return {
-            error: "Invalid request body",
-            issues: checkType.issues,
-        };
-    }
-
-    const { description, project_id, tagIds } = checkType.output;
-
     try {
+        const activeEntryStatus = await hasActiveEntry(db);
+        if (activeEntryStatus.isClockedIn) {
+            ctx.set.status = 400;
+            return { error: "Cannot create a new entry while clocked in" };
+        }
+
+        const body = ctx.body;
+        const checkType = v.safeParse(newEntriesSchema, body);
+
+        if (!checkType.success) {
+            ctx.set.status = 400;
+            return {
+                error: "Invalid request body",
+                issues: checkType.issues,
+            };
+        }
+
+        const { description, project_id, tagIds } = checkType.output;
+
         const result = await db.begin(async (tx) => {
             const [entry] = await tx`
                 insert into entries (
@@ -109,6 +110,16 @@ export async function createEntry(ctx: Context, db: DB) {
         ctx.set.status = 201;
         return result;
     } catch (error) {
+        if (
+            typeof error === "object" &&
+            error !== null &&
+            "code" in error &&
+            error.code === "23505"
+        ) {
+            ctx.set.status = 400;
+            return { error: "Cannot create a new entry while clocked in" };
+        }
+
         ctx.set.status = 500;
         return { error: "Internal server error: failed to create entry" };
     }
