@@ -5,11 +5,13 @@ import * as v from "valibot";
 type DB = ReturnType<typeof postgres>;
 
 export async function getEntries(ctx: Context, db: DB) {
-    if (!Number.isInteger(ctx.query.page) || Number(ctx.query.page) < 1) {
+    const page = parseInt(ctx.query.page as string, 10) || 1;
+
+    if (!Number.isInteger(page) || page < 1) {
         ctx.set.status = 400;
         return { error: "Invalid page number" };
     }
-    const page = parseInt(ctx.query.page as string, 10) || 1;
+
     const limit = 10;
     const offset = (page - 1) * limit;
 
