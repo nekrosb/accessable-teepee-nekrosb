@@ -58,10 +58,10 @@ const app = new Elysia().decorate("db", sql)
   .delete("/entries/:id", async (ctx) => {
     return await deleteEntry(ctx, ctx.db);
   })
-  .patch("/check-in", async (ctx) => {
+  .get("/check-in", async (ctx) => {
     return await checkClockInStatus(ctx, ctx.db);
   })
-  .get("/clock-out", async (ctx) => {
+  .patch("/clock-out", async (ctx) => {
     return await clockOut(ctx, ctx.db);
   })
   .listen(3000);
