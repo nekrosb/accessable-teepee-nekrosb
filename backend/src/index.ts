@@ -7,7 +7,14 @@ import {
   updateProject,
 } from "./projects";
 import { createTag, deleteTag, getTags, updateTag } from "./tags";
-import { createEntries, deleteEntry, getEntries, updateEntry } from "./entries";
+import {
+  checkClockIn,
+  clockOut,
+  createEntries,
+  deleteEntry,
+  getEntries,
+  updateEntry,
+} from "./entries";
 
 const sql = postgres(
   process.env.DATABASE_URL ||
@@ -50,6 +57,12 @@ const app = new Elysia().decorate("db", sql)
   })
   .delete("/entries/:id", async (ctx) => {
     return await deleteEntry(ctx, ctx.db);
+  })
+  .get("/check-in", async (ctx) => {
+    return await checkClockIn(ctx, ctx.db);
+  })
+  .get("/clock-out", async (ctx) => {
+    return await clockOut(ctx, ctx.db);
   })
   .listen(3000);
 

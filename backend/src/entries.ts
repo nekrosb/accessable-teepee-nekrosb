@@ -28,6 +28,25 @@ export async function getEntries(ctx: Context, db: DB) {
     }
 }
 
+export async function checkClockIn(ctx: Context, db: DB) {
+    try {
+        const activeEntry = await db`
+        select exists (
+            select 1
+            from entries
+            where finish_time is null
+        ) as "isClockedIn"
+        `;
+        ctx.set.status = 200;
+        return activeEntry[0];
+    } catch (error) {
+        ctx.set.status = 500;
+        return {
+            error: "Internal server error: failed to check clock-in status",
+        };
+    }
+}
+
 const newEntriesSchema = v.object({
     description: v.optional(v.string("Description must be a string")),
     project_id: v.optional(v.number("Project ID must be a number")),
@@ -37,6 +56,11 @@ const newEntriesSchema = v.object({
 });
 
 export async function createEntries(ctx: Context, db: DB) {
+    const activeEntries = await checkClockIn(ctx, db);
+    if (activeEntries.isClockedIn) {
+        ctx.set.status = 400;
+        return { error: "Cannot create a new entry while clocked in" };
+    }
     const body = ctx.body;
     const checkType = v.safeParse(newEntriesSchema, body);
 
@@ -181,5 +205,31 @@ export async function deleteEntry(ctx: Context, db: DB) {
     } catch (error) {
         ctx.set.status = 500;
         return { error: "Internal server error: failed to delete entry" };
+    }
+}
+
+export async function clockOut(ctx: Context, db: DB) {
+    try {
+        const activeEntry = await checkClockIn(ctx, db);
+        if (!activeEntry.isClockedIn) {
+            ctx.set.status = 400;
+            return { error: "No active entry to clock out from" };
+        }
+        const updatedEntries = await db`
+            update entries
+            set finish_time = now()
+            where finish_time is null
+            returning *
+        `;
+
+        if (updatedEntries.length === 0) {
+            ctx.set.status = 404;
+            return { error: "Active entry not found" };
+        }
+
+        return updatedEntries[0];
+    } catch (error) {
+        ctx.set.status = 500;
+        return { error: "Internal server error: failed to clock out" };
     }
 }
