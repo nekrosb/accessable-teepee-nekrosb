@@ -17,12 +17,15 @@ create table if not exists entries (
     id int generated always as identity primary key,
     description TEXT DEFAULT '',
     start_time TIMESTAMPTZ DEFAULT now(),
-    finish_time TIMESTAMPTZ,
+    finish_time TIMESTAMPTZ  default null,
     project_id int,
     foreign key (project_id) references projects(id),
 
     check (start_time < finish_time)
 );
+create unique index entries_is_active
+on entries ((1))
+where finish_time is null;
 
 create table if not exists entry_tags (
     entry_id int,

@@ -5,11 +5,13 @@ import * as v from "valibot";
 type DB = ReturnType<typeof postgres>;
 
 export async function getEntries(ctx: Context, db: DB) {
-    if (!Number.isInteger(ctx.query.page) || Number(ctx.query.page) < 1) {
+    const page = parseInt(ctx.query.page as string, 10) || 1;
+
+    if (!Number.isInteger(page) || page < 1) {
         ctx.set.status = 400;
         return { error: "Invalid page number" };
     }
-    const page = parseInt(ctx.query.page as string, 10) || 1;
+
     const limit = 10;
     const offset = (page - 1) * limit;
 
@@ -28,6 +30,31 @@ export async function getEntries(ctx: Context, db: DB) {
     }
 }
 
+async function hasActiveEntry(db: DB) {
+    const [activeEntry] = await db`
+        select exists (
+            select 1
+            from entries
+            where finish_time is null
+        ) as "isClockedIn"
+        `;
+
+    return activeEntry;
+}
+
+export async function checkClockInStatus(ctx: Context, db: DB) {
+    try {
+        const activeEntry = await hasActiveEntry(db);
+        ctx.set.status = 200;
+        return activeEntry;
+    } catch (error) {
+        ctx.set.status = 500;
+        return {
+            error: "Internal server error: failed to check clock-in status",
+        };
+    }
+}
+
 const newEntriesSchema = v.object({
     description: v.optional(v.string("Description must be a string")),
     project_id: v.optional(v.number("Project ID must be a number")),
@@ -36,21 +63,27 @@ const newEntriesSchema = v.object({
     tagIds: v.optional(v.array(v.number("Tag ID must be a number"))),
 });
 
-export async function createEntries(ctx: Context, db: DB) {
-    const body = ctx.body;
-    const checkType = v.safeParse(newEntriesSchema, body);
-
-    if (!checkType.success) {
-        ctx.set.status = 400;
-        return {
-            error: "Invalid request body",
-            issues: checkType.issues,
-        };
-    }
-
-    const { description, project_id, tagIds } = checkType.output;
-
+export async function createEntry(ctx: Context, db: DB) {
     try {
+        const activeEntryStatus = await hasActiveEntry(db);
+        if (activeEntryStatus.isClockedIn) {
+            ctx.set.status = 400;
+            return { error: "Cannot create a new entry while clocked in" };
+        }
+
+        const body = ctx.body;
+        const checkType = v.safeParse(newEntriesSchema, body);
+
+        if (!checkType.success) {
+            ctx.set.status = 400;
+            return {
+                error: "Invalid request body",
+                issues: checkType.issues,
+            };
+        }
+
+        const { description, project_id, tagIds } = checkType.output;
+
         const result = await db.begin(async (tx) => {
             const [entry] = await tx`
                 insert into entries (
@@ -79,6 +112,16 @@ export async function createEntries(ctx: Context, db: DB) {
         ctx.set.status = 201;
         return result;
     } catch (error) {
+        if (
+            typeof error === "object" &&
+            error !== null &&
+            "code" in error &&
+            error.code === "23505"
+        ) {
+            ctx.set.status = 400;
+            return { error: "Cannot create a new entry while clocked in" };
+        }
+
         ctx.set.status = 500;
         return { error: "Internal server error: failed to create entry" };
     }
@@ -181,5 +224,26 @@ export async function deleteEntry(ctx: Context, db: DB) {
     } catch (error) {
         ctx.set.status = 500;
         return { error: "Internal server error: failed to delete entry" };
+    }
+}
+
+export async function clockOut(ctx: Context, db: DB) {
+    try {
+        const updatedEntries = await db`
+            update entries
+            set finish_time = now()
+            where finish_time is null
+            returning *
+        `;
+
+        if (updatedEntries.length === 0) {
+            ctx.set.status = 404;
+            return { error: "Active entry not found" };
+        }
+
+        return updatedEntries[0];
+    } catch (error) {
+        ctx.set.status = 500;
+        return { error: "Internal server error: failed to clock out" };
     }
 }
