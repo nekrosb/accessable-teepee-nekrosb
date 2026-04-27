@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { cors } from "@elysiajs/cors";
 import postgres from "postgres";
 import {
   createProject,
@@ -21,7 +22,8 @@ const sql = postgres(
     "postgres://postgres:password@localhost:5432/app_database",
 );
 
-const app = new Elysia().decorate("db", sql)
+const app = new Elysia()
+  .decorate("db", sql)
   .get("/projects", async (ctx) => {
     return await getProjects(ctx.db);
   })
@@ -64,6 +66,9 @@ const app = new Elysia().decorate("db", sql)
   .patch("/clock-out", async (ctx) => {
     return await clockOut(ctx, ctx.db);
   })
+  .use(cors({
+    origin: "*",
+  }))
   .listen(3000);
 
 console.log(

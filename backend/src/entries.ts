@@ -16,14 +16,38 @@ export async function getEntries(ctx: Context, db: DB) {
     const offset = (page - 1) * limit;
 
     try {
-        return await db`select e.*,
-        COALESCE(json_agg(t.*) FILTER (WHERE t.id IS NOT NULL), '[]') as tags
-        from entries e
-        left join entry_tags et on e.id = et.entry_id
-        left join tags t on et.tag_id = t.id
-        group by e.id
-        order by e.id desc
-        limit ${limit} offset ${offset}`;
+        const [countResult] = await db`
+            select count(*)::int as "totalItems"
+            from entries
+        `;
+
+        const items = await db`
+            select e.*,
+                p.title as project_title,
+                COALESCE(json_agg(t.*) FILTER (WHERE t.id IS NOT NULL), '[]') as tags
+            from entries e
+            left join projects p on e.project_id = p.id
+            left join entry_tags et on e.id = et.entry_id
+            left join tags t on et.tag_id = t.id
+            group by e.id, p.id
+            order by e.id desc
+            limit ${limit} offset ${offset}
+        `;
+
+        const totalItems = Number(countResult.totalItems);
+        const totalPages = Math.ceil(totalItems / limit);
+
+        return {
+            items,
+            pagination: {
+                page,
+                limit,
+                totalItems,
+                totalPages,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1 && page <= totalPages,
+            },
+        };
     } catch (error) {
         ctx.set.status = 500;
         return { error: "Internal server error: failed to fetch entries" };
