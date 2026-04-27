@@ -214,6 +214,52 @@ body {
   box-shadow: 0 8px 18px rgba(226, 73, 73, 0.35);
 }
 
+.pagination {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.num-page,
+.page-arrow {
+  min-width: 42px;
+  height: 42px;
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  background: linear-gradient(150deg, #141d2d, #101826);
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.num-page {
+  padding: 0 12px;
+}
+
+.page-arrow {
+  padding: 0 14px;
+}
+
+.num-page:hover,
+.page-arrow:hover {
+  border-color: #3d5277;
+  filter: brightness(1.06);
+}
+
+.num-page.active {
+  border-color: #80a8ff;
+  background: linear-gradient(160deg, #3f74ff, #2f67ff);
+  color: #fff;
+}
+
+.page-arrow.disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  filter: none;
+}
+
 @media (min-width: 700px) {
   .main-container {
     grid-template-columns: repeat(2, minmax(0, 1fr));

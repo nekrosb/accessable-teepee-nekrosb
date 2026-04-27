@@ -2,9 +2,9 @@ import type { EntriesResponse } from "../types/entries";
 
 const url = "http://172.16.6.161:3000/entries";
 
-export async function getEntries(): Promise<EntriesResponse> {
+export async function getEntries(page: number): Promise<EntriesResponse> {
     try {
-        const response = await fetch(url);
+        const response = await fetch(`${url}?page=${page}`);
         if (!response.ok) {
             console.error("[getEntries] HTTP error", {
                 url,

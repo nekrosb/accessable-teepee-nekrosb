@@ -1,20 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import type { Entry } from "../types/entries";
+import type { Entry, Pagination } from "../types/entries";
 import { getEntries } from "../api/entriesApi";
 import { Entries } from "../components/Entries";
 import { Header } from "../components/Header";
+import { Pagination as PaginationComponent } from "../components/Pagination";
 
 export const Route = createFileRoute("/")({ component: App });
 
 function App() {
     const [entries, setEntries] = useState<Entry[]>([]);
+    const [pagination, setPagination] = useState<Pagination>();
+    const [page, setPage] = useState<number>(1);
 
     useEffect(() => {
-        getEntries().then((data) => {
+        getEntries(page).then((data) => {
             setEntries(data.items);
+            setPagination(data.pagination);
         });
-    }, []);
+    }, [page]);
+
+
+    function handlePageChange(newPage: number) {
+        if (pagination && newPage >= 1 && newPage <= pagination.totalPages) {
+            setPage(newPage);
+        }
+    }
+
 
     return (
         <>
@@ -34,6 +46,10 @@ function App() {
                         onEdit={() => {}}
                     />
                 ))}
+
+                {pagination && <PaginationComponent pages={pagination} onPageChange={handlePageChange} />}
+
+
             </div>
         </>
     );
