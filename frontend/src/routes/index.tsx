@@ -14,10 +14,24 @@ function App() {
     const [page, setPage] = useState<number>(1);
 
     useEffect(() => {
-        getEntries(page).then((data) => {
-            setEntries(data.items);
-            setPagination(data.pagination);
-        });
+        let isMounted = true;
+
+        getEntries(page)
+            .then((data) => {
+                if (!isMounted) {
+                    return;
+                }
+
+                setEntries(data.items);
+                setPagination(data.pagination);
+            })
+            .catch((error) => {
+                console.error("Failed to fetch entries:", error);
+            });
+
+        return () => {
+            isMounted = false;
+        };
     }, [page]);
 
 
@@ -40,7 +54,7 @@ function App() {
                         finish_time={entry.finish_time}
                         description={entry.description}
                         project={entry.project_title ?? "No Project"}
-                    tags={entry.tags}
+                        tags={entry.tags}
                         appearOrder={index}
                         onDelete={() => {}}
                         onEdit={() => {}}

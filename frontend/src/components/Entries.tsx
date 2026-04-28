@@ -40,8 +40,8 @@ export function Entries({
             <h2 className="entries-project">{project}</h2>
             <p className="entries-description">{description}</p>
             <div className="entries-tags">
-                {tags.map((tag, index) => (
-                    <span key={index} className="entries-tag">
+                {tags.map((tag) => (
+                    <span key={tag.id} className="entries-tag">
                         {tag.title}
                     </span>
                 ))}

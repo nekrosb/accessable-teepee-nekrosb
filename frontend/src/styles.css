@@ -223,6 +223,15 @@ body {
   margin-top: 8px;
 }
 
+.pagination-ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
 .num-page,
 .page-arrow {
   min-width: 42px;
