@@ -1,8 +1,6 @@
 import type { EntriesResponse } from "../types/entries";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL ||
-    "http://172.16.6.161:3000/entries";
-const url = `${baseUrl}/entries`;
+const url = "http://172.16.6.161:3000/entries";
 
 export async function getEntries(page: number): Promise<EntriesResponse> {
     try {
