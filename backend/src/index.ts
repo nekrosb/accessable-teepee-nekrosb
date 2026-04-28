@@ -1,5 +1,6 @@
-import { Elysia } from "elysia";
 import postgres from "postgres";
+import { Elysia } from "elysia";
+import { cors } from "@elysiajs/cors";
 import {
   createProject,
   deleteProject,
@@ -21,7 +22,13 @@ const sql = postgres(
     "postgres://postgres:password@localhost:5432/app_database",
 );
 
-const app = new Elysia().decorate("db", sql)
+const app = new Elysia()
+  .use(
+    cors({
+      origin: "*",
+    }),
+  )
+  .decorate("db", sql)
   .get("/projects", async (ctx) => {
     return await getProjects(ctx.db);
   })
