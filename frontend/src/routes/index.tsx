@@ -12,6 +12,7 @@ function App() {
     const [entries, setEntries] = useState<Entry[]>([]);
     const [pagination, setPagination] = useState<Pagination>();
     const [page, setPage] = useState<number>(1);
+    const [scrin, setScrin] = useState<boolean>(false);
 
     useEffect(() => {
         let isMounted = true;
