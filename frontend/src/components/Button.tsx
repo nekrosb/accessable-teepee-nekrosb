@@ -2,17 +2,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 type Props = {
+    typeBtn?: "button" | "submit" | "reset";
     text: string;
-    onClick: () => void;
+    onClick?: () => void;
     classBtn: string;
     icon?: IconDefinition;
 };
 
-export function Button({ text, onClick, classBtn, icon }: Props) {
+export function Button({ typeBtn, text, onClick, classBtn, icon }: Props) {
     const accessibilityProps = icon ? { "aria-label": text } : {};
 
     return (
-        <button className={classBtn} onClick={onClick} {...accessibilityProps}>
+        <button type={typeBtn ? typeBtn : "button"} className={classBtn} onClick={onClick} {...accessibilityProps}>
             {icon ? (
                 <>
                     <FontAwesomeIcon icon={icon} aria-hidden="true" />

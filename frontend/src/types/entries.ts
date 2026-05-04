@@ -1,28 +1,36 @@
-export type EntryTag = {
+export interface EntryTag {
     id: number;
     title: string;
     description: string | null;
-};
+}
 
-export type Entry = {
+export interface Entry {
     id: number;
     description: string;
     start_time: string;
     finish_time: string | null;
     project_title: string | null;
     tags: EntryTag[];
-};
+}
 
-export type Pagination = {
+export interface Pagination {
     page: number;
     limit: number;
     totalItems: number;
     totalPages: number;
     hasNextPage: boolean;
     hasPrevPage: boolean;
-};
+}
 
-export type EntriesResponse = {
+export interface EntriesResponse {
     items: Entry[];
     pagination: Pagination;
-};
+}
+export interface entriesFormData {
+    description: string;
+    project: number;
+    tags: number[];
+}
+export interface isClockedIn {
+    isClockedIn: boolean;
+}
