@@ -68,7 +68,7 @@ const app = new Elysia()
   .get("/entries/active", async (ctx) => {
     return await checkClockInStatus(ctx, ctx.db);
   })
-  .patch("/clock-out", async (ctx) => {
+  .patch("/entries/clockOut", async (ctx) => {
     return await clockOut(ctx, ctx.db);
   })
   .listen(3000);

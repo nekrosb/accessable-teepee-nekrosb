@@ -147,3 +147,78 @@ export async function checkClockInStatus(): Promise<boolean> {
         throw error;
     }
 }
+export async function clockOut(): Promise<void> {
+    try {
+        const response = await fetch(`${url}/clockOut`, {
+            method: "PATCH",
+        });
+
+        if (!response.ok) {
+            console.error("[clockOut] HTTP error", {
+                url: `${url}/clockOut`,
+                status: response.status,
+                statusText: response.statusText,
+            });
+            throw new Error(
+                `HTTP error: ${response.status} ${response.statusText}`,
+            );
+        }
+    } catch (error: unknown) {
+        if (error instanceof TypeError) {
+            console.error("[clockOut] Network or CORS error", {
+                url: `${url}/clockOut`,
+                message: error.message,
+            });
+        } else if (error instanceof Error) {
+            console.error("[clockOut] Request failed", {
+                url: `${url}/clockOut`,
+                message: error.message,
+                stack: error.stack,
+            });
+        } else {
+            console.error("[clockOut] Unknown error", {
+                url: `${url}/clockOut`,
+                error,
+            });
+        }
+        throw error;
+    }
+}
+
+export async function deleteEntry(id: number): Promise<void> {
+    try {
+        const response = await fetch(`${url}/${id}`, {
+            method: "DELETE",
+        });
+
+        if (!response.ok) {
+            console.error("[deleteEntry] HTTP error", {
+                url: `${url}/${id}`,
+                status: response.status,
+                statusText: response.statusText,
+            });
+            throw new Error(
+                `HTTP error: ${response.status} ${response.statusText}`,
+            );
+        }
+    } catch (error: unknown) {
+        if (error instanceof TypeError) {
+            console.error("[deleteEntry] Network or CORS error", {
+                url: `${url}/${id}`,
+                message: error.message,
+            });
+        } else if (error instanceof Error) {
+            console.error("[deleteEntry] Request failed", {
+                url: `${url}/${id}`,
+                message: error.message,
+                stack: error.stack,
+            });
+        } else {
+            console.error("[deleteEntry] Unknown error", {
+                url: `${url}/${id}`,
+                error,
+            });
+        }
+        throw error;
+    }
+}

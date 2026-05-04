@@ -6,23 +6,28 @@ import { Input } from "./Input";
 import { Button } from "./Button";
 import { getProjects } from "../api/projectsApi";
 import { getTags } from "../api/tagsApi";
-import { createEntry, checkClockInStatus } from "../api/entriesApi";
+import { createEntry, clockOut } from "../api/entriesApi";
+
+type props = {
+    onCloase: () => void;
+    onStatusChange?: (isClockedIn: boolean) => void;
+    isClockedIn?: boolean;
+}
 
 function isString(value: FormDataEntryValue): value is string {
     return typeof value === "string";
 }
 
-export function ClockIn() {
+export function ClockIn({onCloase, onStatusChange, isClockedIn: isClockedInProp}: props) {
     const [projects, setProjects] = useState<Projects[]>([]);
     const [tags, setTags] = useState<Tags[]>([]);
-    const [isClockedIn, setIsClockedIn] = useState(false);
+    const [isClockedIn, setIsClockedIn] = useState<boolean>(isClockedInProp ?? false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         getProjects().then((data) => setProjects(data));
         getTags().then((data) => setTags(data));
-        checkClockInStatus().then((data) => setIsClockedIn(data));
     }, []);
 
     async function handleClockIn(e: React.FormEvent<HTMLFormElement>) {
@@ -57,9 +62,27 @@ export function ClockIn() {
         try {
             await createEntry(entryData);
             setIsClockedIn(true);
+            onStatusChange?.(true);
+            onCloase();
         } catch (err) {
             console.error("Failed to create entry:", err);
             setError("Failed to clock in");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleFinish() {
+        setLoading(true);
+        setError(null);
+        try {
+            await clockOut();
+            setIsClockedIn(false);
+            onStatusChange?.(false);
+            onCloase();
+        } catch (err) {
+            console.error("Failed to clock out:", err);
+            setError("Failed to clock out");
         } finally {
             setLoading(false);
         }
@@ -115,7 +138,17 @@ export function ClockIn() {
                     </div>
 
                     <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                        <Button typeBtn="submit" classBtn="button--success" text={loading ? "Loading..." : "▶ Start Task"} />
+                        {!isClockedIn ? (
+                            <>
+                                <Button typeBtn="submit" classBtn="button--success" text={loading ? "Loading..." : "▶ Start Task"} />
+                                <Button typeBtn="button" classBtn="button--secondary" text="Cancel" onClick={onCloase} />
+                            </>
+                        ) : (
+                            <>
+                                <Button typeBtn="button" classBtn="button--danger" text={loading ? "Loading..." : "■ Finish Task"} onClick={handleFinish} />
+                                <Button typeBtn="button" classBtn="button--secondary" text="Close" onClick={onCloase} />
+                            </>
+                        )}
                     </div>
                 </form>
 

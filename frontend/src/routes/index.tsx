@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import type { Entry, Pagination } from "../types/entries";
-import { getEntries } from "../api/entriesApi";
+import { getEntries, clockOut, deleteEntry, checkClockInStatus } from "../api/entriesApi";
+
 import { Entries } from "../components/Entries";
 import { Header } from "../components/Header";
 import { Pagination as PaginationComponent } from "../components/Pagination";
@@ -14,14 +15,38 @@ function App() {
     const [entries, setEntries] = useState<Entry[]>([]);
     const [pagination, setPagination] = useState<Pagination>();
     const [page, setPage] = useState<number>(1);
+    const [isClockedIn, setIsClockedIn] = useState<boolean>(false);
     const [screen, setScreen] = useState<"entries" | "createEntry">("entries");
 
     function handleClockIn() {
         setScreen("createEntry");
     }
 
-    function handleClockOut() {}
-    
+    async function updatePage(): Promise<void> {
+        try {
+                        const data = await getEntries(page);
+            setEntries(data.items);
+            setPagination(data.pagination); 
+        } catch (error) {
+            console.error("Failed to fetch entries:", error);
+        }       
+    }
+
+async function handleClockOut(): Promise<void> {
+        try {
+            await clockOut();            setIsClockedIn(false);
+            await updatePage();
+        } catch (error) {            
+            console.error("Failed to clock out:", error);  
+        }
+    }
+
+    useEffect(() => {
+        // initialize clock-in status once on mount
+        checkClockInStatus()
+            .then((v) => setIsClockedIn(v))
+            .catch(() => {});
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -54,7 +79,7 @@ function App() {
 
     return (
         <>
-            <Header clickClockIn={handleClockIn} clickClockOut={handleClockOut} />
+            <Header isClockedIn={isClockedIn} clickClockIn={handleClockIn} clickClockOut={handleClockOut} />
 
             <div className="main-container">
                 {screen === "entries" ? (
@@ -68,7 +93,10 @@ function App() {
                                 project={entry.project_title ?? "No Project"}
                                 tags={entry.tags}
                                 appearOrder={index}
-                                onDelete={() => {}}
+                                onDelete={() => {
+                                    deleteEntry(entry.id);
+                                    updatePage();
+                                }}
                                 onEdit={() => {}}
                             />
                         ))}
@@ -76,7 +104,20 @@ function App() {
                         {pagination && <PaginationComponent pages={pagination} onPageChange={handlePageChange} />}
                     </>
                 ) : (
-                    <ClockIn />
+                    <ClockIn
+                        onCloase={() => setScreen("entries")}
+                        onStatusChange={(newStatus: boolean) => {
+                            setIsClockedIn(newStatus);
+                            
+                            getEntries(page)
+                                .then((data) => {
+                                    setEntries(data.items);
+                                    setPagination(data.pagination);
+                                })
+                                .catch((err) => console.error(err));
+                        }}
+                        isClockedIn={isClockedIn}
+                    />
                 )}
 
 
