@@ -1,17 +1,22 @@
 import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "./Button";
+type props = {
+    isClockedIn: boolean;
+    clickClockIn: () => void;
+    clickClockOut: () => void;
+}
 
-export function Header() {
+export function Header({ isClockedIn, clickClockIn, clickClockOut }: props) {
+
     return (
         <header className="header">
-            <h1 className="header-title">Time Tracker</h1>
+            <div className="header__logo">⏱ Time Tracker</div>
             <div className="header-actions">
-                <Button
-                    text="Clock In"
-                    onClick={() => {}}
-                    classBtn="btn clock-in"
-                    icon={faRightToBracket}
-                />
+                {isClockedIn ? (
+                    <Button text="⏸ Stop Timer" onClick={clickClockOut} classBtn="button--danger" icon={faRightToBracket} />
+                ) : (
+                    <Button text="▶ Start Working" onClick={clickClockIn} classBtn="button--primary" icon={faRightToBracket} />
+                )}
             </div>
         </header>
     );
