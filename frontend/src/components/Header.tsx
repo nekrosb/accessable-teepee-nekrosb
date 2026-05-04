@@ -1,4 +1,3 @@
-import {  } from "react";
 import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "./Button";
 type props = {

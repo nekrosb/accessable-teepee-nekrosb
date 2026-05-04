@@ -14,7 +14,7 @@ type props = {
     isClockedIn?: boolean;
 }
 
-function isString(value: FormDataEntryValue): value is string {
+function isString(value: FormDataEntryValue | null): value is string {
     return typeof value === "string";
 }
 
@@ -29,6 +29,12 @@ export function ClockIn({onCloase, onStatusChange, isClockedIn: isClockedInProp}
         getProjects().then((data) => setProjects(data));
         getTags().then((data) => setTags(data));
     }, []);
+
+    useEffect(() => {
+        if (isClockedInProp !== undefined) {
+            setIsClockedIn(isClockedInProp);
+        }
+    }, [isClockedInProp]);
 
     async function handleClockIn(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();

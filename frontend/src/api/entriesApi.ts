@@ -2,6 +2,7 @@ import type {
     entriesFormData,
     EntriesResponse,
     isClockedIn,
+    UpdateEntryRequest,
 } from "../types/entries";
 import { buildApiUrl } from "./apiBaseUrl";
 
@@ -90,6 +91,51 @@ export async function createEntry(formData: entriesFormData): Promise<void> {
         } else {
             console.error("[createEntry] Unknown error", {
                 url,
+                error,
+            });
+        }
+        throw error;
+    }
+}
+
+export async function updateEntry(
+    id: number,
+    formData: UpdateEntryRequest,
+): Promise<void> {
+    try {
+        const response = await fetch(`${url}/${id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        });
+
+        if (!response.ok) {
+            console.error("[updateEntry] HTTP error", {
+                url: `${url}/${id}`,
+                status: response.status,
+                statusText: response.statusText,
+            });
+            throw new Error(
+                `HTTP error: ${response.status} ${response.statusText}`,
+            );
+        }
+    } catch (error: unknown) {
+        if (error instanceof TypeError) {
+            console.error("[updateEntry] Network or CORS error", {
+                url: `${url}/${id}`,
+                message: error.message,
+            });
+        } else if (error instanceof Error) {
+            console.error("[updateEntry] Request failed", {
+                url: `${url}/${id}`,
+                message: error.message,
+                stack: error.stack,
+            });
+        } else {
+            console.error("[updateEntry] Unknown error", {
+                url: `${url}/${id}`,
                 error,
             });
         }
