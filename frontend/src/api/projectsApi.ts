@@ -1,6 +1,7 @@
 import type { Projects } from "../types/projects";
+import { buildApiUrl } from "./apiBaseUrl";
 
-const url = "http://172.16.6.161:3000/projects";
+const url = buildApiUrl("/projects");
 
 export async function getProjects(): Promise<Projects[]> {
     try {

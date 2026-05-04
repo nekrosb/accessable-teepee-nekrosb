@@ -26,11 +26,12 @@ export interface EntriesResponse {
     items: Entry[];
     pagination: Pagination;
 }
-export interface entriesFormData {
+export interface CreateEntryRequest {
     description: string;
-    project: number;
-    tags: number[];
+    project_id: number;
+    tagIds: number[];
 }
+export type entriesFormData = CreateEntryRequest;
 export interface isClockedIn {
     isClockedIn: boolean;
 }

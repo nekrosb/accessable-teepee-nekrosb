@@ -8,6 +8,10 @@ import { getProjects } from "../api/projectsApi";
 import { getTags } from "../api/tagsApi";
 import { createEntry, checkClockInStatus } from "../api/entriesApi";
 
+function isString(value: FormDataEntryValue): value is string {
+    return typeof value === "string";
+}
+
 export function ClockIn() {
     const [projects, setProjects] = useState<Projects[]>([]);
     const [tags, setTags] = useState<Tags[]>([]);
@@ -27,9 +31,16 @@ export function ClockIn() {
         setError(null);
 
         const formData = new FormData(e.currentTarget);
-        const description = formData.get("description") as string;
-        const projectId = formData.get("project") as string;
-        const tagsIds = formData.getAll("tags").map((id) => Number(id));
+        const descriptionValue = formData.get("description");
+        const projectValue = formData.get("project");
+        const tagsIds = formData
+            .getAll("tags")
+            .filter(isString)
+            .map((id) => Number(id))
+            .filter((id) => Number.isFinite(id));
+
+        const description = isString(descriptionValue) ? descriptionValue : "";
+        const projectId = isString(projectValue) ? projectValue : "";
 
         if (!projectId) {
             setError("Project is required");
@@ -39,8 +50,8 @@ export function ClockIn() {
 
         const entryData: entriesFormData = {
             description: description || "",
-            project: Number(projectId),
-            tags: tagsIds,
+            project_id: Number(projectId),
+            tagIds: tagsIds,
         };
 
         try {

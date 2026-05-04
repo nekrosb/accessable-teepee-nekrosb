@@ -1,6 +1,7 @@
 import type { Tags } from "../types/tags";
+import { buildApiUrl } from "./apiBaseUrl";
 
-const url = "http://172.16.6.161:3000/tags";
+const url = buildApiUrl("/tags");
 
 export async function getTags(): Promise<Tags[]> {
     try {

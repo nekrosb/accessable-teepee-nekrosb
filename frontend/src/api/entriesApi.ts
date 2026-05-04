@@ -3,8 +3,9 @@ import type {
     EntriesResponse,
     isClockedIn,
 } from "../types/entries";
+import { buildApiUrl } from "./apiBaseUrl";
 
-const url = "http://172.16.6.161:3000/entries";
+const url = buildApiUrl("/entries");
 
 export async function getEntries(page: number): Promise<EntriesResponse> {
     try {
