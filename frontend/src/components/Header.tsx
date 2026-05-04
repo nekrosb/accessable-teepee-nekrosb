@@ -17,9 +17,12 @@ export function Header({ clickClockIn, clickClockOut }: props) {
 
     return (
         <header className="header">
-            <h1 className="header-title">Time Tracker</h1>
+            <div className="header__logo">⏱ Time Tracker</div>
             <div className="header-actions">
-        {isClockedIn ?                 <Button text="Clock Out" onClick={clickClockOut} classBtn="btn clock-out" icon={faRightToBracket} /> :                <Button text="Clock In" onClick={clickClockIn} classBtn="btn clock-in" icon={faRightToBracket} /> }
+                {isClockedIn ?
+                    <Button text="⏸ Stop Timer" onClick={clickClockOut} classBtn="button--danger" icon={faRightToBracket} /> :
+                    <Button text="▶ Start Working" onClick={clickClockIn} classBtn="button--primary" icon={faRightToBracket} />
+                }
             </div>
         </header>
     );

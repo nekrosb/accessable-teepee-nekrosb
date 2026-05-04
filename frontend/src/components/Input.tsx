@@ -7,9 +7,10 @@ placeholder: string,
 }
 
 export function Input({type, name, inputClass, label, placeholder}: props) {
-    return (<>
-            <label htmlFor={name} className="text-sm text-gray-600">{label}</label>
-            <input type={type} name={name} id={name} placeholder={placeholder} className={`border border-gray-300 rounded-md p-2 ${inputClass}`} />
-            </>
+    return (
+        <div style={{ marginBottom: 'var(--space-4)' }}>
+            <label htmlFor={name} style={{ display: 'block', color: 'var(--text-primary)', fontWeight: '600', marginBottom: '0.5rem', fontSize: '0.875rem' }}>{label}</label>
+            <input type={type} name={name} id={name} placeholder={placeholder} className={`input ${inputClass || ''}`} />
+        </div>
     )
 }

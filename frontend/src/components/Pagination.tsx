@@ -62,7 +62,7 @@ export function Pagination({ pages, onPageChange }: Props) {
             <Button
                 key={pageNum}
                 onClick={pageNum !== pages.page ? () => onPageChange(pageNum) : () => {}}
-                classBtn={pageNum === pages.page ? "num-page active" : "num-page"}
+                classBtn={pageNum === pages.page ? "button--primary button--sm" : "button--secondary button--sm"}
                 text={String(pageNum)}
             />,
         );
@@ -71,17 +71,19 @@ export function Pagination({ pages, onPageChange }: Props) {
     });
 
     return (
-        <div className="pagination">
+        <div style={{ display: 'flex', gap: 'var(--gap-md)', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', padding: 'var(--padding-lg)', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-card)', border: '1px solid var(--border-color)', marginTop: 'var(--space-8)' }}>
             <Button
-                text="Back"
+                text="← Back"
                 onClick={pages.hasPrevPage ? () => onPageChange(pages.page - 1) : () => {}}
-                classBtn={pages.hasPrevPage ? "page-arrow" : "page-arrow disabled"}
+                classBtn="button--secondary button--sm"
             />
-            {pageItems}
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                {pageItems}
+            </div>
             <Button
-                text="Forward"
+                text="Forward →"
                 onClick={pages.hasNextPage ? () => onPageChange(pages.page + 1) : () => {}}
-                classBtn={pages.hasNextPage ? "page-arrow" : "page-arrow disabled"}
+                classBtn="button--secondary button--sm"
             />
         </div>
     );
