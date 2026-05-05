@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { entriesFormData } from "#/types/entries";
-import type { Projects } from "../types/projects";
+import type { Project } from "../types/projects";
 import type { Tags } from "../types/tags";
 import { Input } from "./Input";
 import { Button } from "./Button";
@@ -19,7 +19,7 @@ function isString(value: FormDataEntryValue | null): value is string {
 }
 
 export function ClockIn({onCloase, onStatusChange, isClockedIn: isClockedInProp}: props) {
-    const [projects, setProjects] = useState<Projects[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [tags, setTags] = useState<Tags[]>([]);
     const [isClockedIn, setIsClockedIn] = useState<boolean>(isClockedInProp ?? false);
     const [loading, setLoading] = useState(false);

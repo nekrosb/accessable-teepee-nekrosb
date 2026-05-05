@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Entry } from "../types/entries";
-import type { Projects } from "../types/projects";
+import type { Project } from "../types/projects";
 import type { Tags } from "../types/tags";
 import type { UpdateEntryRequest } from "../types/entries";
 import { Input } from "./Input";
@@ -35,7 +35,7 @@ function toIsoString(value: string) {
 }
 
 export function EditForm({ entry, onClose, onSaved }: Props) {
-    const [projects, setProjects] = useState<Projects[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [tags, setTags] = useState<Tags[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);

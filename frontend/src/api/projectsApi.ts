@@ -1,13 +1,13 @@
-import type { Projects } from "../types/projects";
+import type { Project } from "../types/projects";
 import { buildApiUrl } from "./apiBaseUrl";
 
 const url = buildApiUrl("/projects");
 
-export async function getProjects(): Promise<Projects[]> {
+export async function getProjects(): Promise<Project[]> {
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            console.error("[getprojects] HTTP error", {
+            console.error("[getProjects] HTTP error", {
                 url,
                 status: response.status,
                 statusText: response.statusText,
@@ -17,11 +17,11 @@ export async function getProjects(): Promise<Projects[]> {
             );
         }
 
-        let data: Projects[];
+        let data: Project[];
         try {
-            data = (await response.json()) as Projects[];
+            data = (await response.json()) as Project[];
         } catch (parseError) {
-            console.error("[getprojects] Failed to parse JSON response", {
+            console.error("[getProjects] Failed to parse JSON response", {
                 url,
                 parseError,
             });
@@ -31,18 +31,18 @@ export async function getProjects(): Promise<Projects[]> {
         return data;
     } catch (error: unknown) {
         if (error instanceof TypeError) {
-            console.error("[getprojects] Network or CORS error", {
+            console.error("[getProjects] Network or CORS error", {
                 url,
                 message: error.message,
             });
         } else if (error instanceof Error) {
-            console.error("[getprojects] Request failed", {
+            console.error("[getProjects] Request failed", {
                 url,
                 message: error.message,
                 stack: error.stack,
             });
         } else {
-            console.error("[getprojects] Unknown error", {
+            console.error("[getProjects] Unknown error", {
                 url,
                 error,
             });

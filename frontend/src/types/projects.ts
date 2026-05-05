@@ -1,8 +1,10 @@
-export type Projects = {
+export type Project = {
     id: number;
     title: string;
     description: string | null;
 };
+
+export type Projects = Project;
 
 export type CreateProjectRequest = {
     title: string;
