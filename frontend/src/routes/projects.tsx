@@ -5,6 +5,7 @@ import type { Project } from '../types/projects'
 import { Header } from '../components/projects/Header'
 import { ProjectItem } from '../components/projects/ProjectItem.tsx'
 import { CreateProjectForm } from '../components/projects/formCreateProject'
+import { EditProjectForm } from '../components/projects/EditProjectForm'
 
 export const Route = createFileRoute('/projects')({
   component: Projects,
@@ -13,7 +14,10 @@ export const Route = createFileRoute('/projects')({
 function Projects() {
   const [error, setError] = useState<string | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
-  const [screen, setScreen] = useState<'projects' | 'createProject'>('projects')
+  const [screen, setScreen] = useState<
+    'projects' | 'createProject' | 'editProject'
+  >('projects')
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   async function fetchProjects() {
     try {
@@ -41,10 +45,22 @@ function Projects() {
   }
 
   function openCreateProjectScreen() {
+    setSelectedProject(null)
     setScreen('createProject')
   }
 
   function closeCreateProjectScreen() {
+    setSelectedProject(null)
+    setScreen('projects')
+  }
+
+  function openEditProjectScreen(project: Project) {
+    setSelectedProject(project)
+    setScreen('editProject')
+  }
+
+  function closeEditProjectScreen() {
+    setSelectedProject(null)
     setScreen('projects')
   }
 
@@ -73,7 +89,9 @@ function Projects() {
                   onDelete={() => {
                     void handleDeleteProject(project.id)
                   }}
-                  onEdit={() => {}}
+                  onEdit={() => {
+                    openEditProjectScreen(project)
+                  }}
                 />
               ))}
           </>
@@ -84,6 +102,16 @@ function Projects() {
             onClose={closeCreateProjectScreen}
             onCreated={() => {
               void handleProjectCreated()
+            }}
+          />
+        )}
+
+        {screen === 'editProject' && selectedProject && (
+          <EditProjectForm
+            project={selectedProject}
+            onClose={closeEditProjectScreen}
+            onUpdated={() => {
+              void fetchProjects()
             }}
           />
         )}
