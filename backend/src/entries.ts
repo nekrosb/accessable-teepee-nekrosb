@@ -271,3 +271,24 @@ export async function clockOut(ctx: Context, db: DB) {
         return { error: "Internal server error: failed to clock out" };
     }
 }
+
+export function getEntriesById(ctx: Context, db: DB) {
+    const id = parseInt(ctx.params.id as string, 10);
+
+    if (isNaN(id)) {
+        ctx.set.status = 400;
+        return { error: "Invalid entry ID" };
+    }
+
+    return db`
+        select e.*,
+            p.title as project_title,
+            COALESCE(json_agg(t.*) FILTER (WHERE t.id IS NOT NULL), '[]') as tags
+        from entries e
+        left join projects p on e.project_id = p.id
+        left join entry_tags et on e.id = et.entry_id
+        left join tags t on et.tag_id = t.id
+        where e.id = ${id}
+        group by e.id, p.id
+    `;
+}

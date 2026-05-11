@@ -14,6 +14,7 @@ import {
   createEntry,
   deleteEntry,
   getEntries,
+  getEntriesById,
   updateEntry,
 } from "./entries";
 
@@ -70,6 +71,8 @@ const app = new Elysia()
   })
   .patch("/entries/clockOut", async (ctx) => {
     return await clockOut(ctx, ctx.db);
+  }).get("/entries/:id", async (ctx) => {
+    return await getEntriesById(ctx, ctx.db);
   })
   .listen(3000);
 

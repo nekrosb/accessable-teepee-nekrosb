@@ -125,17 +125,6 @@ function App() {
           </>
         )}
 
-        {screen === 'createEntry' && (
-          <ClockIn
-            onCloase={closeForm}
-            onStatusChange={(newStatus: boolean) => {
-              setIsClockedIn(newStatus)
-              void refreshEntries()
-            }}
-            isClockedIn={isClockedIn}
-          />
-        )}
-
         {screen === 'editEntry' && selectedEntry && (
           <EditForm
             key={selectedEntry.id}
