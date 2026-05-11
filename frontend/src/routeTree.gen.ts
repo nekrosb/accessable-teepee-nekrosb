@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TagsRouteImport } from './routes/tags'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EntriesCreateEntriesRouteImport } from './routes/entries/createEntries'
+import { Route as EntriesEntriesIdEditEntriesRouteImport } from './routes/entries/$entriesId/editEntries'
 
 const TagsRoute = TagsRouteImport.update({
   id: '/tags',
@@ -28,35 +30,70 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EntriesCreateEntriesRoute = EntriesCreateEntriesRouteImport.update({
+  id: '/entries/createEntries',
+  path: '/entries/createEntries',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntriesEntriesIdEditEntriesRoute =
+  EntriesEntriesIdEditEntriesRouteImport.update({
+    id: '/entries/$entriesId/editEntries',
+    path: '/entries/$entriesId/editEntries',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/projects': typeof ProjectsRoute
   '/tags': typeof TagsRoute
+  '/entries/createEntries': typeof EntriesCreateEntriesRoute
+  '/entries/$entriesId/editEntries': typeof EntriesEntriesIdEditEntriesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/projects': typeof ProjectsRoute
   '/tags': typeof TagsRoute
+  '/entries/createEntries': typeof EntriesCreateEntriesRoute
+  '/entries/$entriesId/editEntries': typeof EntriesEntriesIdEditEntriesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/projects': typeof ProjectsRoute
   '/tags': typeof TagsRoute
+  '/entries/createEntries': typeof EntriesCreateEntriesRoute
+  '/entries/$entriesId/editEntries': typeof EntriesEntriesIdEditEntriesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/projects' | '/tags'
+  fullPaths:
+    | '/'
+    | '/projects'
+    | '/tags'
+    | '/entries/createEntries'
+    | '/entries/$entriesId/editEntries'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/projects' | '/tags'
-  id: '__root__' | '/' | '/projects' | '/tags'
+  to:
+    | '/'
+    | '/projects'
+    | '/tags'
+    | '/entries/createEntries'
+    | '/entries/$entriesId/editEntries'
+  id:
+    | '__root__'
+    | '/'
+    | '/projects'
+    | '/tags'
+    | '/entries/createEntries'
+    | '/entries/$entriesId/editEntries'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProjectsRoute: typeof ProjectsRoute
   TagsRoute: typeof TagsRoute
+  EntriesCreateEntriesRoute: typeof EntriesCreateEntriesRoute
+  EntriesEntriesIdEditEntriesRoute: typeof EntriesEntriesIdEditEntriesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +119,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/entries/createEntries': {
+      id: '/entries/createEntries'
+      path: '/entries/createEntries'
+      fullPath: '/entries/createEntries'
+      preLoaderRoute: typeof EntriesCreateEntriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entries/$entriesId/editEntries': {
+      id: '/entries/$entriesId/editEntries'
+      path: '/entries/$entriesId/editEntries'
+      fullPath: '/entries/$entriesId/editEntries'
+      preLoaderRoute: typeof EntriesEntriesIdEditEntriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +140,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProjectsRoute: ProjectsRoute,
   TagsRoute: TagsRoute,
+  EntriesCreateEntriesRoute: EntriesCreateEntriesRoute,
+  EntriesEntriesIdEditEntriesRoute: EntriesEntriesIdEditEntriesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
