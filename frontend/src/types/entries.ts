@@ -8,8 +8,8 @@ export interface Entry {
     id: number;
     description: string;
     project_id?: number | null;
-    start_time: string;
-    finish_time: string | null;
+    start_time: string | undefined | null;
+    finish_time: string | null | undefined;
     project_title: string | null;
     tags: EntryTag[];
 }

@@ -7,7 +7,6 @@ import {
   deleteEntry,
   getEntries,
 } from '../api/entriesApi'
-import { EditForm } from '../components/EditForm'
 import { Entries } from '../components/Entries'
 import { Header } from '../components/Header'
 import { Pagination as PaginationComponent } from '../components/Pagination'
@@ -53,9 +52,11 @@ function App() {
     navigate({ to: '/entries/createEntries' })
   }
 
-  function handleEdit(entry: Entry) {
-    setSelectedEntry(entry)
-    setScreen('editEntry')
+  function handleEdit(id: number) {
+    navigate({
+      to: '/entries/$id/edit',
+      params: { id: String(id) },
+    })
   }
 
   async function handleClockOut() {
@@ -112,7 +113,7 @@ function App() {
                 onDelete={() => {
                   void handleDelete(entry.id)
                 }}
-                onEdit={() => handleEdit(entry)}
+                onEdit={() => handleEdit(entry.id)}
               />
             ))}
 
@@ -123,18 +124,6 @@ function App() {
               />
             )}
           </>
-        )}
-
-        {screen === 'editEntry' && selectedEntry && (
-          <EditForm
-            key={selectedEntry.id}
-            entry={selectedEntry}
-            onClose={closeForm}
-            onSaved={() => {
-              void refreshEntries()
-              void refreshClockStatus()
-            }}
-          />
         )}
       </div>
     </>
