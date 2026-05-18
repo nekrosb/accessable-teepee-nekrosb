@@ -1,55 +1,53 @@
-import { useState } from 'react'
+import { useState, useActionState } from 'react'
 import { Input } from './../Input'
 import { Button } from './../Button'
 import { createTag } from '../../api/tagsApi'
 
 type Props = {
   onClose: () => void
-  onCreated: () => void
 }
 
 function isString(value: FormDataEntryValue | null): value is string {
   return typeof value === 'string'
 }
 
-export function CreateTagForm({ onClose, onCreated }: Props) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export function CreateTagForm({ onClose }: Props) {
+  const [state, formAction, isPending] = useActionState(
+    async (_prevState, formData: FormData) => {
+      const titleValue = formData.get('title')
+      const descriptionValue = formData.get('description')
 
-  async function handleCreateTag(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+      const title = isString(titleValue) ? titleValue.trim() : ''
+      const description = isString(descriptionValue)
+        ? descriptionValue.trim()
+        : ''
 
-    const formData = new FormData(e.currentTarget)
-    const titleValue = formData.get('title')
-    const descriptionValue = formData.get('description')
+      if (!title) {
+        return {
+          success: false,
+          error: 'Project title is required',
+        }
+      }
 
-    const title = isString(titleValue) ? titleValue.trim() : ''
-    const description = isString(descriptionValue)
-      ? descriptionValue.trim()
-      : ''
-
-    if (!title) {
-      setError('Tag title is required')
-      setLoading(false)
-      return
-    }
-
-    try {
-      await createTag({
-        title,
-        description,
-      })
-      onCreated()
-      onClose()
-    } catch (err) {
-      console.error('Failed to create tag:', err)
-      setError('Failed to create tag')
-    } finally {
-      setLoading(false)
-    }
-  }
+      try {
+        await createTag({
+          title,
+          description,
+        })
+        onClose()
+      } catch (err) {
+        console.error('Failed to create tag:', err)
+        return {
+          success: false,
+          error: 'Failed to create tag',
+        }
+      }
+    },
+    {
+      success: true,
+      error: null,
+    },
+  )
 
   return (
     <div
@@ -82,7 +80,7 @@ export function CreateTagForm({ onClose, onCreated }: Props) {
           gap: '1.5rem',
         }}
       >
-        {error && (
+        {state.error && (
           <div
             style={{
               padding: '0.75rem 1rem',
@@ -93,12 +91,12 @@ export function CreateTagForm({ onClose, onCreated }: Props) {
               fontSize: '0.875rem',
             }}
           >
-            ✗ {error}
+            ✗ {state.error}
           </div>
         )}
 
         <form
-          onSubmit={handleCreateTag}
+          action={formAction}
           style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
         >
           <Input
@@ -119,7 +117,7 @@ export function CreateTagForm({ onClose, onCreated }: Props) {
             <Button
               typeBtn="submit"
               classBtn="button--success"
-              text={loading ? 'Creating...' : 'Create tag'}
+              text={isPending ? 'Creating...' : 'Create tag'}
             />
             <Button
               typeBtn="button"

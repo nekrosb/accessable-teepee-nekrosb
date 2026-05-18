@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { deleteTag, getTags } from '../api/tagsApi'
 import type { Tags } from '../types/tags'
@@ -16,6 +16,7 @@ function TagsPage() {
   const [tags, setTags] = useState<Tags[]>([])
   const [screen, setScreen] = useState<'tags' | 'createTag' | 'editTag'>('tags')
   const [selectedTag, setSelectedTag] = useState<Tags | null>(null)
+  const navigate = useNavigate()
 
   async function fetchTags() {
     try {
@@ -42,11 +43,6 @@ function TagsPage() {
     }
   }
 
-  function openCreateTagScreen() {
-    setSelectedTag(null)
-    setScreen('createTag')
-  }
-
   function closeCreateTagScreen() {
     setSelectedTag(null)
     setScreen('tags')
@@ -69,7 +65,11 @@ function TagsPage() {
 
   return (
     <>
-      <Header onCreateTagClick={openCreateTagScreen} />
+      <Header
+        onCreateTagClick={() => {
+          navigate({ to: '/tag/tagCreate' })
+        }}
+      />
       <div className="main-container">
         {screen === 'tags' && (
           <>
@@ -101,15 +101,6 @@ function TagsPage() {
             onClose={closeEditTagScreen}
             onUpdated={() => {
               void fetchTags()
-            }}
-          />
-        )}
-
-        {screen === 'createTag' && (
-          <CreateTagForm
-            onClose={closeCreateTagScreen}
-            onCreated={() => {
-              void handleTagCreated()
             }}
           />
         )}

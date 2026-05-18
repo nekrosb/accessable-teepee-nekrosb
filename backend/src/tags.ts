@@ -106,3 +106,13 @@ export async function deleteTag(ctx: Context, db: DB) {
 
     return deletedTags[0];
 }
+export async function getTagsByIds(db: DB, ids: number[]) {
+    if (ids.length === 0) {
+        return [];
+    }
+
+    return await db`
+        select * from tags
+        where id in (${ids})
+    `;
+}

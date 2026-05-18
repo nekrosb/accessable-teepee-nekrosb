@@ -9,16 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TagstagCreatRouteImport } from './routes/tagstagCreat'
 import { Route as TagsRouteImport } from './routes/tags'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TagsCreateTagRouteImport } from './routes/tags/createTag'
+import { Route as TagTagCreateRouteImport } from './routes/tag/tagCreate'
 import { Route as ProjectCreateProjectsRouteImport } from './routes/project/createProjects'
 import { Route as EntriesCreateEntriesRouteImport } from './routes/entries/createEntries'
-import { Route as TagsIdEditRouteImport } from './routes/tags/id/edit'
+import { Route as TagIdEditRouteImport } from './routes/tag/$id/edit'
 import { Route as ProjectIdEditRouteImport } from './routes/project/$id/edit'
 import { Route as EntriesIdEditRouteImport } from './routes/entries/$id/edit'
 
+const TagstagCreatRoute = TagstagCreatRouteImport.update({
+  id: '/tagstagCreat',
+  path: '/tagstagCreat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TagsRoute = TagsRouteImport.update({
   id: '/tags',
   path: '/tags',
@@ -34,10 +40,10 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TagsCreateTagRoute = TagsCreateTagRouteImport.update({
-  id: '/createTag',
-  path: '/createTag',
-  getParentRoute: () => TagsRoute,
+const TagTagCreateRoute = TagTagCreateRouteImport.update({
+  id: '/tag/tagCreate',
+  path: '/tag/tagCreate',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectCreateProjectsRoute = ProjectCreateProjectsRouteImport.update({
   id: '/project/createProjects',
@@ -49,10 +55,10 @@ const EntriesCreateEntriesRoute = EntriesCreateEntriesRouteImport.update({
   path: '/entries/createEntries',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TagsIdEditRoute = TagsIdEditRouteImport.update({
-  id: '/id/edit',
-  path: '/id/edit',
-  getParentRoute: () => TagsRoute,
+const TagIdEditRoute = TagIdEditRouteImport.update({
+  id: '/tag/$id/edit',
+  path: '/tag/$id/edit',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectIdEditRoute = ProjectIdEditRouteImport.update({
   id: '/project/$id/edit',
@@ -68,36 +74,39 @@ const EntriesIdEditRoute = EntriesIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/projects': typeof ProjectsRoute
-  '/tags': typeof TagsRouteWithChildren
+  '/tags': typeof TagsRoute
+  '/tagstagCreat': typeof TagstagCreatRoute
   '/entries/createEntries': typeof EntriesCreateEntriesRoute
   '/project/createProjects': typeof ProjectCreateProjectsRoute
-  '/tags/createTag': typeof TagsCreateTagRoute
+  '/tag/tagCreate': typeof TagTagCreateRoute
   '/entries/$id/edit': typeof EntriesIdEditRoute
   '/project/$id/edit': typeof ProjectIdEditRoute
-  '/tags/id/edit': typeof TagsIdEditRoute
+  '/tag/$id/edit': typeof TagIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/projects': typeof ProjectsRoute
-  '/tags': typeof TagsRouteWithChildren
+  '/tags': typeof TagsRoute
+  '/tagstagCreat': typeof TagstagCreatRoute
   '/entries/createEntries': typeof EntriesCreateEntriesRoute
   '/project/createProjects': typeof ProjectCreateProjectsRoute
-  '/tags/createTag': typeof TagsCreateTagRoute
+  '/tag/tagCreate': typeof TagTagCreateRoute
   '/entries/$id/edit': typeof EntriesIdEditRoute
   '/project/$id/edit': typeof ProjectIdEditRoute
-  '/tags/id/edit': typeof TagsIdEditRoute
+  '/tag/$id/edit': typeof TagIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/projects': typeof ProjectsRoute
-  '/tags': typeof TagsRouteWithChildren
+  '/tags': typeof TagsRoute
+  '/tagstagCreat': typeof TagstagCreatRoute
   '/entries/createEntries': typeof EntriesCreateEntriesRoute
   '/project/createProjects': typeof ProjectCreateProjectsRoute
-  '/tags/createTag': typeof TagsCreateTagRoute
+  '/tag/tagCreate': typeof TagTagCreateRoute
   '/entries/$id/edit': typeof EntriesIdEditRoute
   '/project/$id/edit': typeof ProjectIdEditRoute
-  '/tags/id/edit': typeof TagsIdEditRoute
+  '/tag/$id/edit': typeof TagIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -105,48 +114,61 @@ export interface FileRouteTypes {
     | '/'
     | '/projects'
     | '/tags'
+    | '/tagstagCreat'
     | '/entries/createEntries'
     | '/project/createProjects'
-    | '/tags/createTag'
+    | '/tag/tagCreate'
     | '/entries/$id/edit'
     | '/project/$id/edit'
-    | '/tags/id/edit'
+    | '/tag/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/projects'
     | '/tags'
+    | '/tagstagCreat'
     | '/entries/createEntries'
     | '/project/createProjects'
-    | '/tags/createTag'
+    | '/tag/tagCreate'
     | '/entries/$id/edit'
     | '/project/$id/edit'
-    | '/tags/id/edit'
+    | '/tag/$id/edit'
   id:
     | '__root__'
     | '/'
     | '/projects'
     | '/tags'
+    | '/tagstagCreat'
     | '/entries/createEntries'
     | '/project/createProjects'
-    | '/tags/createTag'
+    | '/tag/tagCreate'
     | '/entries/$id/edit'
     | '/project/$id/edit'
-    | '/tags/id/edit'
+    | '/tag/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProjectsRoute: typeof ProjectsRoute
-  TagsRoute: typeof TagsRouteWithChildren
+  TagsRoute: typeof TagsRoute
+  TagstagCreatRoute: typeof TagstagCreatRoute
   EntriesCreateEntriesRoute: typeof EntriesCreateEntriesRoute
   ProjectCreateProjectsRoute: typeof ProjectCreateProjectsRoute
+  TagTagCreateRoute: typeof TagTagCreateRoute
   EntriesIdEditRoute: typeof EntriesIdEditRoute
   ProjectIdEditRoute: typeof ProjectIdEditRoute
+  TagIdEditRoute: typeof TagIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tagstagCreat': {
+      id: '/tagstagCreat'
+      path: '/tagstagCreat'
+      fullPath: '/tagstagCreat'
+      preLoaderRoute: typeof TagstagCreatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tags': {
       id: '/tags'
       path: '/tags'
@@ -168,12 +190,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tags/createTag': {
-      id: '/tags/createTag'
-      path: '/createTag'
-      fullPath: '/tags/createTag'
-      preLoaderRoute: typeof TagsCreateTagRouteImport
-      parentRoute: typeof TagsRoute
+    '/tag/tagCreate': {
+      id: '/tag/tagCreate'
+      path: '/tag/tagCreate'
+      fullPath: '/tag/tagCreate'
+      preLoaderRoute: typeof TagTagCreateRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/project/createProjects': {
       id: '/project/createProjects'
@@ -189,12 +211,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EntriesCreateEntriesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tags/id/edit': {
-      id: '/tags/id/edit'
-      path: '/id/edit'
-      fullPath: '/tags/id/edit'
-      preLoaderRoute: typeof TagsIdEditRouteImport
-      parentRoute: typeof TagsRoute
+    '/tag/$id/edit': {
+      id: '/tag/$id/edit'
+      path: '/tag/$id/edit'
+      fullPath: '/tag/$id/edit'
+      preLoaderRoute: typeof TagIdEditRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/project/$id/edit': {
       id: '/project/$id/edit'
@@ -213,26 +235,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface TagsRouteChildren {
-  TagsCreateTagRoute: typeof TagsCreateTagRoute
-  TagsIdEditRoute: typeof TagsIdEditRoute
-}
-
-const TagsRouteChildren: TagsRouteChildren = {
-  TagsCreateTagRoute: TagsCreateTagRoute,
-  TagsIdEditRoute: TagsIdEditRoute,
-}
-
-const TagsRouteWithChildren = TagsRoute._addFileChildren(TagsRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProjectsRoute: ProjectsRoute,
-  TagsRoute: TagsRouteWithChildren,
+  TagsRoute: TagsRoute,
+  TagstagCreatRoute: TagstagCreatRoute,
   EntriesCreateEntriesRoute: EntriesCreateEntriesRoute,
   ProjectCreateProjectsRoute: ProjectCreateProjectsRoute,
+  TagTagCreateRoute: TagTagCreateRoute,
   EntriesIdEditRoute: EntriesIdEditRoute,
   ProjectIdEditRoute: ProjectIdEditRoute,
+  TagIdEditRoute: TagIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

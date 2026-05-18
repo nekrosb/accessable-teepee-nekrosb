@@ -47,7 +47,6 @@ function App() {
   }, [page])
 
   function handleClockIn() {
-    setSelectedEntry(null)
     navigate({ to: '/entries/createEntries' })
   }
 
@@ -82,11 +81,6 @@ function App() {
     if (pagination && newPage >= 1 && newPage <= pagination.totalPages) {
       setPage(newPage)
     }
-  }
-
-  function closeForm() {
-    setSelectedEntry(null)
-    setScreen('entries')
   }
 
   return (
