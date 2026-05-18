@@ -219,8 +219,13 @@ export async function updateEntry(ctx: Context, db: DB) {
 
         return result;
     } catch (error) {
+        console.error(error);
+
         ctx.set.status = 500;
-        return { error: "Internal server error: failed to update entry" };
+
+        return {
+            error: error instanceof Error ? error.message : "Unknown error",
+        };
     }
 }
 
@@ -269,5 +274,33 @@ export async function clockOut(ctx: Context, db: DB) {
     } catch (error) {
         ctx.set.status = 500;
         return { error: "Internal server error: failed to clock out" };
+    }
+}
+
+export async function getEntriesById(ctx: Context, db: DB) {
+    const id = parseInt(ctx.params.id as string, 10);
+
+    if (isNaN(id)) {
+        ctx.set.status = 400;
+        return { error: "Invalid entry ID" };
+    }
+
+    try {
+        const entry = await db`
+        select e.*,
+            p.title as project_title,
+            COALESCE(json_agg(t.*) FILTER (WHERE t.id IS NOT NULL), '[]') as tags
+        from entries e
+        left join projects p on e.project_id = p.id
+        left join entry_tags et on e.id = et.entry_id
+        left join tags t on et.tag_id = t.id
+        where e.id = ${id}
+        group by e.id, p.id
+    `;
+
+        return entry[0];
+    } catch (error) {
+        ctx.set.status = 500;
+        return { error: "Internal server error: failed to fetch entry" };
     }
 }

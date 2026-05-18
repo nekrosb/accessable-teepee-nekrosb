@@ -268,3 +268,51 @@ export async function deleteEntry(id: number): Promise<void> {
         throw error;
     }
 }
+
+export async function getEntriesById(id: number): Promise<Entry> {
+    try {
+        const response = await fetch(`${url}/${id}`);
+        if (!response.ok) {
+            console.error("[getEntriesById] HTTP error", {
+                url: `${url}/${id}`,
+                status: response.status,
+                statusText: response.statusText,
+            });
+            throw new Error(
+                `HTTP error: ${response.status} ${response.statusText}`,
+            );
+        }
+
+        let data: Entry;
+        try {
+            data = (await response.json()) as Entry;
+        } catch (parseError) {
+            console.error("[getEntriesById] Failed to parse JSON response", {
+                url: `${url}/${id}`,
+                parseError,
+            });
+            throw parseError;
+        }
+
+        return data;
+    } catch (error: unknown) {
+        if (error instanceof TypeError) {
+            console.error("[getEntriesById] Network or CORS error", {
+                url: `${url}/${id}`,
+                message: error.message,
+            });
+        } else if (error instanceof Error) {
+            console.error("[getEntriesById] Request failed", {
+                url: `${url}/${id}`,
+                message: error.message,
+                stack: error.stack,
+            });
+        } else {
+            console.error("[getEntriesById] Unknown error", {
+                url: `${url}/${id}`,
+                error,
+            });
+        }
+        throw error;
+    }
+}

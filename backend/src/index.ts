@@ -1,19 +1,22 @@
+import { UpdateTagRequest } from "./../../frontend/src/types/tags";
 import postgres from "postgres";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import {
   createProject,
   deleteProject,
+  getProjectById,
   getProjects,
   updateProject,
 } from "./projects";
-import { createTag, deleteTag, getTags, updateTag } from "./tags";
+import { createTag, deleteTag, getTagById, getTags, updateTag } from "./tags";
 import {
   checkClockInStatus,
   clockOut,
   createEntry,
   deleteEntry,
   getEntries,
+  getEntriesById,
   updateEntry,
 } from "./entries";
 
@@ -32,6 +35,9 @@ const app = new Elysia()
   .get("/projects", async (ctx) => {
     return await getProjects(ctx.db);
   })
+  .get("/projects/:id", async (ctx) => {
+    return await getProjectById(ctx, ctx.db);
+  })
   .post("/projects", async (ctx) => {
     return await createProject(ctx, ctx.db);
   })
@@ -43,6 +49,9 @@ const app = new Elysia()
   })
   .get("/tags", async (ctx) => {
     return await getTags(ctx.db);
+  })
+  .get("/tags/:id", async (ctx) => {
+    return await getTagById(ctx, ctx.db);
   })
   .post("/tags", async (ctx) => {
     return await createTag(ctx, ctx.db);
@@ -70,6 +79,8 @@ const app = new Elysia()
   })
   .patch("/entries/clockOut", async (ctx) => {
     return await clockOut(ctx, ctx.db);
+  }).get("/entries/:id", async (ctx) => {
+    return await getEntriesById(ctx, ctx.db);
   })
   .listen(3000);
 

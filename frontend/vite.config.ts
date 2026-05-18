@@ -9,6 +9,10 @@ import tailwindcss from "@tailwindcss/vite";
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
   server: {
+    host: true,
+
+    allowedHosts: ["nik.local"],
+
     port: 5173,
     proxy: {
       "/api": {

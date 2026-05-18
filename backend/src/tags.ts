@@ -106,3 +106,26 @@ export async function deleteTag(ctx: Context, db: DB) {
 
     return deletedTags[0];
 }
+
+export async function getTagById(ctx: Context, db: DB) {
+    const id = parseInt(ctx.params.id as string, 10);
+
+    if (isNaN(id)) {
+        ctx.set.status = 400;
+        return { error: "Invalid tag ID" };
+    }
+
+    const tags = await db`
+        select * from tags
+        where id = ${id}
+    `;
+
+    if (tags.length === 0) {
+        ctx.set.status = 404;
+        return {
+            error: "tag not found",
+        };
+    }
+
+    return tags[0];
+}
