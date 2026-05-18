@@ -220,3 +220,56 @@ export async function updateTag(
         throw error;
     }
 }
+
+export async function getTagById(tagId: number): Promise<Tags> {
+    try {
+        const response = await fetch(`${url}/${tagId}`);
+        if (!response.ok) {
+            console.error("[getTagById] HTTP error", {
+                url: `${url}/${tagId}`,
+                status: response.status,
+                statusText: response.statusText,
+                tagId,
+            });
+            throw new Error(
+                `HTTP error: ${response.status} ${response.statusText}`,
+            );
+        }
+
+        let data: Tags;
+        try {
+            data = (await response.json()) as Tags;
+        } catch (parseError) {
+            console.error("[getTagById] Failed to parse JSON response", {
+                url: `${url}/${tagId}`,
+                tagId,
+                parseError,
+            });
+            throw parseError;
+        }
+
+        return data;
+    } catch (error: unknown) {
+        if (error instanceof TypeError) {
+            console.error("[getTagById] Network or CORS error", {
+                url: `${url}/${tagId}`,
+                tagId,
+                message: error.message,
+            });
+        } else if (error instanceof Error) {
+            console.error("[getTagById] Request failed", {
+                url: `${url}/${tagId}`,
+                tagId,
+                message: error.message,
+                stack: error.stack,
+            });
+        } else {
+            console.error("[getTagById] Unknown error", {
+                url: `${url}/${tagId}`,
+                tagId,
+                error,
+            });
+        }
+        throw error;
+    }
+}

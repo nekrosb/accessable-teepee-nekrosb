@@ -4,8 +4,6 @@ import { deleteTag, getTags } from '../api/tagsApi'
 import type { Tags } from '../types/tags'
 import { Header } from '../components/tags/Header'
 import { TagItem } from '../components/tags/TagItem'
-import { CreateTagForm } from '../components/tags/CreateTagForm'
-import { EditTagForm } from '../components/tags/EditTagForm'
 
 export const Route = createFileRoute('/tags')({
   component: TagsPage,
@@ -14,8 +12,6 @@ export const Route = createFileRoute('/tags')({
 function TagsPage() {
   const [error, setError] = useState<string | null>(null)
   const [tags, setTags] = useState<Tags[]>([])
-  const [screen, setScreen] = useState<'tags' | 'createTag' | 'editTag'>('tags')
-  const [selectedTag, setSelectedTag] = useState<Tags | null>(null)
   const navigate = useNavigate()
 
   async function fetchTags() {
@@ -43,26 +39,6 @@ function TagsPage() {
     }
   }
 
-  function closeCreateTagScreen() {
-    setSelectedTag(null)
-    setScreen('tags')
-  }
-
-  function openEditTagScreen(tag: Tags) {
-    setSelectedTag(tag)
-    setScreen('editTag')
-  }
-
-  function closeEditTagScreen() {
-    setSelectedTag(null)
-    setScreen('tags')
-  }
-
-  async function handleTagCreated() {
-    await fetchTags()
-    setScreen('tags')
-  }
-
   return (
     <>
       <Header
@@ -71,39 +47,30 @@ function TagsPage() {
         }}
       />
       <div className="main-container">
-        {screen === 'tags' && (
-          <>
-            <h1>Tags</h1>
-            <p>Welcome to the Tags page!</p>
-            {error && <div className="error">{error}</div>}
-            {tags.length === 0 && <p>No tags found.</p>}
-            {tags.length > 0 &&
-              !error &&
-              tags.map((tag) => (
-                <TagItem
-                  key={tag.id}
-                  description={tag.description}
-                  title={tag.title}
-                  onDelete={() => {
-                    void handleDeleteTag(tag.id)
-                  }}
-                  onEdit={() => {
-                    openEditTagScreen(tag)
-                  }}
-                />
-              ))}
-          </>
-        )}
-
-        {screen === 'editTag' && selectedTag && (
-          <EditTagForm
-            tag={selectedTag}
-            onClose={closeEditTagScreen}
-            onUpdated={() => {
-              void fetchTags()
-            }}
-          />
-        )}
+        <>
+          <h1>Tags</h1>
+          <p>Welcome to the Tags page!</p>
+          {error && <div className="error">{error}</div>}
+          {tags.length === 0 && <p>No tags found.</p>}
+          {tags.length > 0 &&
+            !error &&
+            tags.map((tag) => (
+              <TagItem
+                key={tag.id}
+                description={tag.description}
+                title={tag.title}
+                onDelete={() => {
+                  void handleDeleteTag(tag.id)
+                }}
+                onEdit={() => {
+                  navigate({
+                    to: `/tag/${tag.id}/edit`,
+                    params: { id: String(tag.id) },
+                  })
+                }}
+              />
+            ))}
+        </>
       </div>
     </>
   )

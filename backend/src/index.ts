@@ -1,3 +1,4 @@
+import { UpdateTagRequest } from "./../../frontend/src/types/tags";
 import postgres from "postgres";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
@@ -8,7 +9,7 @@ import {
   getProjects,
   updateProject,
 } from "./projects";
-import { createTag, deleteTag, getTags, getTagsByIds, updateTag } from "./tags";
+import { createTag, deleteTag, getTagById, getTags, updateTag } from "./tags";
 import {
   checkClockInStatus,
   clockOut,
@@ -49,8 +50,8 @@ const app = new Elysia()
   .get("/tags", async (ctx) => {
     return await getTags(ctx.db);
   })
-  .get("/tags/ids", async (ctx) => {
-    return await getTagsByIds(ctx.db, ctx.query.ids as unknown as number[]);
+  .get("/tags/:id", async (ctx) => {
+    return await getTagById(ctx, ctx.db);
   })
   .post("/tags", async (ctx) => {
     return await createTag(ctx, ctx.db);

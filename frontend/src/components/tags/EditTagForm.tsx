@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useActionState } from 'react'
 import { Input } from './../Input'
 import { Button } from './../Button'
 import { updateTag } from '../../api/tagsApi'
@@ -7,51 +7,50 @@ import type { Tags } from '../../types/tags'
 type Props = {
   tag: Tags
   onClose: () => void
-  onUpdated: () => void
 }
 
 function isString(value: FormDataEntryValue | null): value is string {
   return typeof value === 'string'
 }
 
-export function EditTagForm({ tag, onClose, onUpdated }: Props) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export function EditTagForm({ tag, onClose }: Props) {
+  const [state, formAction, isPending] = useActionState(
+    async (_prevState, formData: FormData) => {
+      const titleValue = formData.get('title')
+      const descriptionValue = formData.get('description')
 
-  async function handleEditTag(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+      const title = isString(titleValue) ? titleValue.trim() : ''
+      const description = isString(descriptionValue)
+        ? descriptionValue.trim()
+        : ''
 
-    const formData = new FormData(e.currentTarget)
-    const titleValue = formData.get('title')
-    const descriptionValue = formData.get('description')
+      if (!title) {
+        return {
+          success: false,
+          error: 'Project title is required',
+        }
+      }
 
-    const title = isString(titleValue) ? titleValue.trim() : ''
-    const description = isString(descriptionValue)
-      ? descriptionValue.trim()
-      : ''
+      try {
+        await updateTag(tag.id, {
+          title,
+          description,
+        })
 
-    if (!title) {
-      setError('Tag title is required')
-      setLoading(false)
-      return
-    }
-
-    try {
-      await updateTag(tag.id, {
-        title,
-        description,
-      })
-      onUpdated()
-      onClose()
-    } catch (err) {
-      console.error('Failed to update tag:', err)
-      setError('Failed to update tag')
-    } finally {
-      setLoading(false)
-    }
-  }
+        onClose()
+      } catch (err) {
+        console.error('Failed to update tag:', err)
+        return {
+          success: false,
+          error: 'Failed to update tag',
+        }
+      }
+    },
+    {
+      success: true,
+      error: null,
+    },
+  )
 
   return (
     <div
@@ -82,7 +81,7 @@ export function EditTagForm({ tag, onClose, onUpdated }: Props) {
           gap: '1.5rem',
         }}
       >
-        {error && (
+        {state.error && (
           <div
             style={{
               padding: '0.75rem 1rem',
@@ -93,12 +92,12 @@ export function EditTagForm({ tag, onClose, onUpdated }: Props) {
               fontSize: '0.875rem',
             }}
           >
-            ✗ {error}
+            ✗ {state.error}
           </div>
         )}
 
         <form
-          onSubmit={handleEditTag}
+          action={formAction}
           style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
         >
           <Input
@@ -121,7 +120,7 @@ export function EditTagForm({ tag, onClose, onUpdated }: Props) {
             <Button
               typeBtn="submit"
               classBtn="button--success"
-              text={loading ? 'Saving...' : 'Save changes'}
+              text={isPending ? 'Saving...' : 'Save changes'}
             />
             <Button
               typeBtn="button"

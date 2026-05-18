@@ -1,4 +1,4 @@
-import { useState, useActionState } from 'react'
+import { useActionState } from 'react'
 import { Input } from './../Input'
 import { Button } from './../Button'
 import { createTag } from '../../api/tagsApi'
