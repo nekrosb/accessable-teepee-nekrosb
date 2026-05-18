@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { getProjects, deleteProject } from '../api/projectsApi'
 import type { Project } from '../types/projects'
 import { Header } from '../components/projects/Header'
@@ -12,6 +13,7 @@ export const Route = createFileRoute('/projects')({
 })
 
 function Projects() {
+  const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
   const [screen, setScreen] = useState<
@@ -45,8 +47,7 @@ function Projects() {
   }
 
   function openCreateProjectScreen() {
-    setSelectedProject(null)
-    setScreen('createProject')
+    navigate({ to: '/project/createProjects' })
   }
 
   function closeCreateProjectScreen() {
@@ -95,15 +96,6 @@ function Projects() {
                 />
               ))}
           </>
-        )}
-
-        {screen === 'createProject' && (
-          <CreateProjectForm
-            onClose={closeCreateProjectScreen}
-            onCreated={() => {
-              void handleProjectCreated()
-            }}
-          />
         )}
 
         {screen === 'editProject' && selectedProject && (

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useActionState } from 'react'
 import { Input } from '../Input'
 import { Button } from '../Button'
 import { createProject } from '../../api/projectsApi'
@@ -6,47 +6,42 @@ import { isString } from '../../utils/formUtils'
 
 type Props = {
   onClose: () => void
-  onCreated: () => void
 }
 
-export function CreateProjectForm({ onClose, onCreated }: Props) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export function CreateProjectForm({ onClose }: Props) {
+  const [state, formAction, isPending] = useActionState(
+    async (_prevState, formData: FormData) => {
+      const titleValue = formData.get('title')
+      const descriptionValue = formData.get('description')
 
-  async function handleCreateProject(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+      const title = isString(titleValue) ? titleValue.trim() : ''
+      const description = isString(descriptionValue)
+        ? descriptionValue.trim()
+        : ''
 
-    const formData = new FormData(e.currentTarget)
-    const titleValue = formData.get('title')
-    const descriptionValue = formData.get('description')
+      if (!title) {
+        return {
+          success: false,
+          error: 'Project title is required',
+        }
+      }
 
-    const title = isString(titleValue) ? titleValue.trim() : ''
-    const description = isString(descriptionValue)
-      ? descriptionValue.trim()
-      : ''
-
-    if (!title) {
-      setError('Project title is required')
-      setLoading(false)
-      return
-    }
-
-    try {
-      await createProject({
-        title,
-        description,
-      })
-      onCreated()
-      onClose()
-    } catch (err) {
-      console.error('Failed to create project:', err)
-      setError('Failed to create project')
-    } finally {
-      setLoading(false)
-    }
-  }
+      try {
+        await createProject({
+          title,
+          description,
+        })
+        onClose()
+      } catch (err) {
+        console.error('Failed to create project:', err)
+        return {
+          success: false,
+          error: 'Failed to create project. Please try again later.',
+        }
+      }
+    },
+    { success: false, error: null },
+  )
 
   return (
     <div className="form-card">
@@ -55,9 +50,9 @@ export function CreateProjectForm({ onClose, onCreated }: Props) {
       </div>
 
       <div className="form-card__body">
-        {error && <div className="form-card__error">✗ {error}</div>}
+        {state.error && <div className="form-card__error">✗ {state.error}</div>}
 
-        <form onSubmit={handleCreateProject} className="form-card__form">
+        <form action={formAction} className="form-card__form">
           <Input
             type="text"
             name="title"
@@ -76,7 +71,7 @@ export function CreateProjectForm({ onClose, onCreated }: Props) {
             <Button
               typeBtn="submit"
               classBtn="button--success"
-              text={loading ? 'Creating...' : 'Create project'}
+              text={isPending ? 'Creating...' : 'Create project'}
             />
             <Button
               typeBtn="button"
