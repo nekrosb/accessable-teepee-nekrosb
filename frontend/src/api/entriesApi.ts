@@ -22,10 +22,10 @@ export async function getEntries(page: number): Promise<EntriesResponse> {
         try {
             return (await response.json()) as EntriesResponse;
         } catch (parseError) {
-            throw new Error("Failed to parse JSON response");
+            throw new Error("Failed to parse JSON response", { cause: parseError });
         }
     } catch (error: unknown) {
-        handleApiError(error, "getEntries", { url });
+        handleApiError(error, "getEntries", { url: `${url}?page=${page}` });
     }
 }
 
@@ -78,7 +78,7 @@ export async function updateEntry(
             );
         }
     } catch (error: unknown) {
-        handleApiError(error, "updateEntry", { url });
+        handleApiError(error, "updateEntry", { url: `${url}/${id}`, formData });
     }
 }
 
@@ -86,11 +86,6 @@ export async function checkClockInStatus(): Promise<boolean> {
     try {
         const response = await fetch(`${url}/active`);
         if (!response.ok) {
-            console.error("[checkClockInStatus] HTTP error", {
-                url: `${url}/active`,
-                status: response.status,
-                statusText: response.statusText,
-            });
             throw new Error(
                 `HTTP error: ${response.status} ${response.statusText}`,
             );
@@ -112,9 +107,10 @@ export async function checkClockInStatus(): Promise<boolean> {
 
         return data.isClockedIn;
     } catch (error: unknown) {
-        handleApiError(error, "checkClockInStatus", { url });
+        handleApiError(error, "checkClockInStatus", { url: `${url}/active` });
     }
 }
+
 export async function clockOut(): Promise<void> {
     try {
         const response = await fetch(`${url}/clockOut`, {

@@ -8,13 +8,13 @@ export function handleApiError(
             ...details,
             message: error.message,
         });
-        throw new Error("Network error. Please check your connection.");
+        throw error;
     } else if (error instanceof Error) {
         console.error(`[${context}] Request failed`, {
             ...details,
             message: error.message,
         });
-        throw new Error(error.message);
+        throw error;
     } else {
         console.error(`[${context}] Unknown error`, { ...details, error });
         throw new Error("An unknown error occurred.");
