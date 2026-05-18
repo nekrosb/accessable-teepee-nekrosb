@@ -3,6 +3,7 @@ import type {
     EntriesResponse,
     isClockedIn,
     UpdateEntryRequest,
+    Entry,
 } from "../types/entries";
 import { buildApiUrl } from "./apiBaseUrl";
 import { handleApiError } from "../utils/errorHandler";
