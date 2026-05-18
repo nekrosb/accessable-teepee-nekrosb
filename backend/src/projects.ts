@@ -106,3 +106,26 @@ export async function deleteProject(ctx: Context, db: DB) {
 
     return deletedProject[0];
 }
+
+export async function getProjectById(ctx: Context, db: DB) {
+    const id = parseInt(ctx.params.id as string, 10);
+
+    if (isNaN(id)) {
+        ctx.set.status = 400;
+        return { error: "Invalid project ID" };
+    }
+
+    const project = await db`
+        select * from projects
+        where id = ${id}
+    `;
+
+    if (project.length === 0) {
+        ctx.set.status = 404;
+        return {
+            error: "Project not found",
+        };
+    }
+
+    return project[0];
+}

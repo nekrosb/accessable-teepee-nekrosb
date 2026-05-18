@@ -4,6 +4,7 @@ import { cors } from "@elysiajs/cors";
 import {
   createProject,
   deleteProject,
+  getProjectById,
   getProjects,
   updateProject,
 } from "./projects";
@@ -32,6 +33,9 @@ const app = new Elysia()
   .decorate("db", sql)
   .get("/projects", async (ctx) => {
     return await getProjects(ctx.db);
+  })
+  .get("/projects/:id", async (ctx) => {
+    return await getProjectById(ctx, ctx.db);
   })
   .post("/projects", async (ctx) => {
     return await createProject(ctx, ctx.db);

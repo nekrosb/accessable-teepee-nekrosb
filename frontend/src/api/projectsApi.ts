@@ -222,3 +222,56 @@ export async function updateProject(
         throw error;
     }
 }
+
+export async function getProjectById(projectId: number): Promise<Project> {
+    try {
+        const response = await fetch(`${url}/${projectId}`);
+        if (!response.ok) {
+            console.error("[getProjectById] HTTP error", {
+                url: `${url}/${projectId}`,
+                status: response.status,
+                statusText: response.statusText,
+                projectId,
+            });
+            throw new Error(
+                `HTTP error: ${response.status} ${response.statusText}`,
+            );
+        }
+
+        let data: Project;
+        try {
+            data = (await response.json()) as Project;
+        } catch (parseError) {
+            console.error("[getProjectById] Failed to parse JSON response", {
+                url: `${url}/${projectId}`,
+                projectId,
+                parseError,
+            });
+            throw parseError;
+        }
+
+        return data;
+    } catch (error: unknown) {
+        if (error instanceof TypeError) {
+            console.error("[getProjectById] Network or CORS error", {
+                url: `${url}/${projectId}`,
+                projectId,
+                message: error.message,
+            });
+        } else if (error instanceof Error) {
+            console.error("[getProjectById] Request failed", {
+                url: `${url}/${projectId}`,
+                projectId,
+                message: error.message,
+                stack: error.stack,
+            });
+        } else {
+            console.error("[getProjectById] Unknown error", {
+                url: `${url}/${projectId}`,
+                projectId,
+                error,
+            });
+        }
+        throw error;
+    }
+}

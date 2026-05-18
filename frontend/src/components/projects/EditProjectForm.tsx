@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useActionState } from 'react'
 import { Input } from './../Input'
 import { Button } from './../Button'
 import { updateProject } from '../../api/projectsApi'
@@ -7,51 +7,46 @@ import type { Project } from '../../types/projects'
 type Props = {
   project: Project
   onClose: () => void
-  onUpdated: () => void
 }
 
 function isString(value: FormDataEntryValue | null): value is string {
   return typeof value === 'string'
 }
 
-export function EditProjectForm({ project, onClose, onUpdated }: Props) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export function EditProjectForm({ project, onClose }: Props) {
+  const [state, formAction, isPending] = useActionState(
+    async (_prevState, formData: FormData) => {
+      const titleValue = formData.get('title')
+      const descriptionValue = formData.get('description')
 
-  async function handleEditProject(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+      const title = isString(titleValue) ? titleValue.trim() : ''
+      const description = isString(descriptionValue)
+        ? descriptionValue.trim()
+        : ''
 
-    const formData = new FormData(e.currentTarget)
-    const titleValue = formData.get('title')
-    const descriptionValue = formData.get('description')
+      if (!title) {
+        return {
+          success: false,
+          error: 'Project title is required',
+        }
+      }
 
-    const title = isString(titleValue) ? titleValue.trim() : ''
-    const description = isString(descriptionValue)
-      ? descriptionValue.trim()
-      : ''
-
-    if (!title) {
-      setError('Project title is required')
-      setLoading(false)
-      return
-    }
-
-    try {
-      await updateProject(project.id, {
-        title,
-        description,
-      })
-      onUpdated()
-      onClose()
-    } catch (err) {
-      console.error('Failed to update project:', err)
-      setError('Failed to update project')
-    } finally {
-      setLoading(false)
-    }
-  }
+      try {
+        await updateProject(project.id, {
+          title,
+          description,
+        })
+        onClose()
+      } catch (err) {
+        console.error('Failed to update project:', err)
+        return {
+          success: false,
+          error: 'Failed to update project. Please try again later.',
+        }
+      }
+    },
+    { success: false, error: null },
+  )
 
   return (
     <div
@@ -84,7 +79,7 @@ export function EditProjectForm({ project, onClose, onUpdated }: Props) {
           gap: '1.5rem',
         }}
       >
-        {error && (
+        {state.error && (
           <div
             style={{
               padding: '0.75rem 1rem',
@@ -95,12 +90,12 @@ export function EditProjectForm({ project, onClose, onUpdated }: Props) {
               fontSize: '0.875rem',
             }}
           >
-            ✗ {error}
+            ✗ {state.error}
           </div>
         )}
 
         <form
-          onSubmit={handleEditProject}
+          action={formAction}
           style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
         >
           <Input
@@ -123,7 +118,7 @@ export function EditProjectForm({ project, onClose, onUpdated }: Props) {
             <Button
               typeBtn="submit"
               classBtn="button--success"
-              text={loading ? 'Saving...' : 'Save changes'}
+              text={isPending ? 'Saving...' : 'Save changes'}
             />
             <Button
               typeBtn="button"

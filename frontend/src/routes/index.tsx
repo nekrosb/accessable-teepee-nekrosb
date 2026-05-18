@@ -24,7 +24,6 @@ function App() {
   const [screen, setScreen] = useState<'entries' | 'createEntry' | 'editEntry'>(
     'entries',
   )
-  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null)
 
   async function refreshEntries() {
     const data = await getEntries(page)
