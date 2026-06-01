@@ -1,10 +1,12 @@
 import type {
     entriesFormData,
     EntriesResponse,
+    Entry,
     isClockedIn,
     UpdateEntryRequest,
 } from "../types/entries";
 import { buildApiUrl } from "./apiBaseUrl";
+import { handleApiError } from "../utils/errorHandler";
 
 const url = buildApiUrl("/entries");
 
@@ -12,47 +14,20 @@ export async function getEntries(page: number): Promise<EntriesResponse> {
     try {
         const response = await fetch(`${url}?page=${page}`);
         if (!response.ok) {
-            console.error("[getEntries] HTTP error", {
-                url,
-                status: response.status,
-                statusText: response.statusText,
-            });
             throw new Error(
                 `HTTP error: ${response.status} ${response.statusText}`,
             );
         }
 
-        let data: EntriesResponse;
         try {
-            data = (await response.json()) as EntriesResponse;
+            return (await response.json()) as EntriesResponse;
         } catch (parseError) {
-            console.error("[getEntries] Failed to parse JSON response", {
-                url,
-                parseError,
+            throw new Error("Failed to parse JSON response", {
+                cause: parseError,
             });
-            throw parseError;
         }
-
-        return data;
     } catch (error: unknown) {
-        if (error instanceof TypeError) {
-            console.error("[getEntries] Network or CORS error", {
-                url,
-                message: error.message,
-            });
-        } else if (error instanceof Error) {
-            console.error("[getEntries] Request failed", {
-                url,
-                message: error.message,
-                stack: error.stack,
-            });
-        } else {
-            console.error("[getEntries] Unknown error", {
-                url,
-                error,
-            });
-        }
-        throw error;
+        handleApiError(error, "getEntries", { url: `${url}?page=${page}` });
     }
 }
 
@@ -77,24 +52,7 @@ export async function createEntry(formData: entriesFormData): Promise<void> {
             );
         }
     } catch (error: unknown) {
-        if (error instanceof TypeError) {
-            console.error("[createEntry] Network or CORS error", {
-                url,
-                message: error.message,
-            });
-        } else if (error instanceof Error) {
-            console.error("[createEntry] Request failed", {
-                url,
-                message: error.message,
-                stack: error.stack,
-            });
-        } else {
-            console.error("[createEntry] Unknown error", {
-                url,
-                error,
-            });
-        }
-        throw error;
+        handleApiError(error, "createEntry", { url });
     }
 }
 
@@ -122,24 +80,7 @@ export async function updateEntry(
             );
         }
     } catch (error: unknown) {
-        if (error instanceof TypeError) {
-            console.error("[updateEntry] Network or CORS error", {
-                url: `${url}/${id}`,
-                message: error.message,
-            });
-        } else if (error instanceof Error) {
-            console.error("[updateEntry] Request failed", {
-                url: `${url}/${id}`,
-                message: error.message,
-                stack: error.stack,
-            });
-        } else {
-            console.error("[updateEntry] Unknown error", {
-                url: `${url}/${id}`,
-                error,
-            });
-        }
-        throw error;
+        handleApiError(error, "updateEntry", { url: `${url}/${id}`, formData });
     }
 }
 
@@ -147,11 +88,6 @@ export async function checkClockInStatus(): Promise<boolean> {
     try {
         const response = await fetch(`${url}/active`);
         if (!response.ok) {
-            console.error("[checkClockInStatus] HTTP error", {
-                url: `${url}/active`,
-                status: response.status,
-                statusText: response.statusText,
-            });
             throw new Error(
                 `HTTP error: ${response.status} ${response.statusText}`,
             );
@@ -173,26 +109,10 @@ export async function checkClockInStatus(): Promise<boolean> {
 
         return data.isClockedIn;
     } catch (error: unknown) {
-        if (error instanceof TypeError) {
-            console.error("[checkClockInStatus] Network or CORS error", {
-                url: `${url}/active`,
-                message: error.message,
-            });
-        } else if (error instanceof Error) {
-            console.error("[checkClockInStatus] Request failed", {
-                url: `${url}/active`,
-                message: error.message,
-                stack: error.stack,
-            });
-        } else {
-            console.error("[checkClockInStatus] Unknown error", {
-                url: `${url}/active`,
-                error,
-            });
-        }
-        throw error;
+        handleApiError(error, "checkClockInStatus", { url: `${url}/active` });
     }
 }
+
 export async function clockOut(): Promise<void> {
     try {
         const response = await fetch(`${url}/clockOut`, {
@@ -210,24 +130,7 @@ export async function clockOut(): Promise<void> {
             );
         }
     } catch (error: unknown) {
-        if (error instanceof TypeError) {
-            console.error("[clockOut] Network or CORS error", {
-                url: `${url}/clockOut`,
-                message: error.message,
-            });
-        } else if (error instanceof Error) {
-            console.error("[clockOut] Request failed", {
-                url: `${url}/clockOut`,
-                message: error.message,
-                stack: error.stack,
-            });
-        } else {
-            console.error("[clockOut] Unknown error", {
-                url: `${url}/clockOut`,
-                error,
-            });
-        }
-        throw error;
+        handleApiError(error, "clockOut", { url });
     }
 }
 
@@ -248,24 +151,7 @@ export async function deleteEntry(id: number): Promise<void> {
             );
         }
     } catch (error: unknown) {
-        if (error instanceof TypeError) {
-            console.error("[deleteEntry] Network or CORS error", {
-                url: `${url}/${id}`,
-                message: error.message,
-            });
-        } else if (error instanceof Error) {
-            console.error("[deleteEntry] Request failed", {
-                url: `${url}/${id}`,
-                message: error.message,
-                stack: error.stack,
-            });
-        } else {
-            console.error("[deleteEntry] Unknown error", {
-                url: `${url}/${id}`,
-                error,
-            });
-        }
-        throw error;
+        handleApiError(error, "deleteEntry", { url });
     }
 }
 
@@ -296,23 +182,6 @@ export async function getEntriesById(id: number): Promise<Entry> {
 
         return data;
     } catch (error: unknown) {
-        if (error instanceof TypeError) {
-            console.error("[getEntriesById] Network or CORS error", {
-                url: `${url}/${id}`,
-                message: error.message,
-            });
-        } else if (error instanceof Error) {
-            console.error("[getEntriesById] Request failed", {
-                url: `${url}/${id}`,
-                message: error.message,
-                stack: error.stack,
-            });
-        } else {
-            console.error("[getEntriesById] Unknown error", {
-                url: `${url}/${id}`,
-                error,
-            });
-        }
-        throw error;
+        handleApiError(error, "getEntriesById", { url });
     }
 }
