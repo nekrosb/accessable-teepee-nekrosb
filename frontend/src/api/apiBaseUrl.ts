@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = "/api";
+const DEFAULT_API_BASE_URL = "172.16.6.162";
 
 function normalizeBaseUrl(url: string) {
     return url.replace(/\/$/, "");

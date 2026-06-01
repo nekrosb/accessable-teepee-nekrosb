@@ -1,9 +1,9 @@
 import type {
     entriesFormData,
     EntriesResponse,
+    Entry,
     isClockedIn,
     UpdateEntryRequest,
-    Entry,
 } from "../types/entries";
 import { buildApiUrl } from "./apiBaseUrl";
 import { handleApiError } from "../utils/errorHandler";
@@ -22,7 +22,9 @@ export async function getEntries(page: number): Promise<EntriesResponse> {
         try {
             return (await response.json()) as EntriesResponse;
         } catch (parseError) {
-            throw new Error("Failed to parse JSON response", { cause: parseError });
+            throw new Error("Failed to parse JSON response", {
+                cause: parseError,
+            });
         }
     } catch (error: unknown) {
         handleApiError(error, "getEntries", { url: `${url}?page=${page}` });
